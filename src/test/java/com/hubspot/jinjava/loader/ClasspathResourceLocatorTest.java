@@ -21,4 +21,16 @@ public class ClasspathResourceLocatorTest extends BaseInterpretingTest {
   public void itThrowsNotFoundWhenNotFound() throws Exception {
     new ClasspathResourceLocator().getString("foo", StandardCharsets.UTF_8, interpreter);
   }
+
+  @Test(expected = ResourceNotFoundException.class)
+  public void itBlocksDotDotTraversal() throws Exception {
+    new ClasspathResourceLocator()
+      .getString("loader/cp/foo/../../dummy.html", StandardCharsets.UTF_8, interpreter);
+  }
+
+  @Test(expected = ResourceNotFoundException.class)
+  public void itBlocksAbsolutePaths() throws Exception {
+    new ClasspathResourceLocator()
+      .getString("/loader/cp/foo/bar.jinja", StandardCharsets.UTF_8, interpreter);
+  }
 }
