@@ -56,4 +56,36 @@ public class EscapeJsFilterTest extends BaseJinjavaTest {
     )
       .isEqualTo("Testing\\nlineb\\\"reak\\n");
   }
+
+  @Test
+  public void testEscapesSingleQuotes() {
+    Map<String, String> vars = ImmutableMap.of("string", "'; alert(document.domain); //");
+    assertThat(jinjava.render("{{ string|escapejs }}", vars))
+      .isEqualTo("\\u0027; alert(document.domain); //");
+  }
+
+  @Test
+  public void testEscapesScriptClosingSequence() {
+    Map<String, String> vars = ImmutableMap.of(
+      "string",
+      "</script><script>alert(document.domain)</script>"
+    );
+    assertThat(jinjava.render("{{ string|escapejs }}", vars))
+      .isEqualTo(
+        "\\u003C/script\\u003E\\u003Cscript\\u003Ealert(document.domain)\\u003C/script\\u003E"
+      );
+  }
+
+  @Test
+  public void testEscapesAmpersand() {
+    Map<String, String> vars = ImmutableMap.of("string", "a & b");
+    assertThat(jinjava.render("{{ string|escapejs }}", vars)).isEqualTo("a \\u0026 b");
+  }
+
+  @Test
+  public void testSingleQuotedContextIsInert() {
+    Map<String, String> vars = ImmutableMap.of("x", "'; alert(document.domain); //");
+    assertThat(jinjava.render("<script>var v = '{{ x|escapejs }}';</script>", vars))
+      .isEqualTo("<script>var v = '\\u0027; alert(document.domain); //';</script>");
+  }
 }
