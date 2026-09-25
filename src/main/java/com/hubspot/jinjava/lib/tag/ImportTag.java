@@ -13,6 +13,7 @@ import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.MetaContextVariables;
 import com.hubspot.jinjava.interpret.TagCycleException;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
@@ -212,6 +213,9 @@ public class ImportTag implements Tag {
       }
       childBindings.remove(Context.GLOBAL_MACROS_SCOPE_KEY);
       childBindings.forEach((key, value) -> {
+        if (MetaContextVariables.isMetaContextVariable(key, interpreter.getContext())) {
+          return;
+        }
         Object originalValue = value instanceof DeferredValue
           ? ((DeferredValue) value).getOriginalValue()
           : null;
