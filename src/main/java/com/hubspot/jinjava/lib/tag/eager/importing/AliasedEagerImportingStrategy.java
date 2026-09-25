@@ -15,7 +15,7 @@ import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.PrefixToPreserveState;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
@@ -165,8 +165,8 @@ public class AliasedEagerImportingStrategy implements EagerImportingStrategy {
     currentMap.put(
       allAliases[allAliases.length - 1],
       child.getContext().isDeferredExecutionMode()
-        ? DeferredValue.instance(new PyMap(new HashMap<>()))
-        : new PyMap(new HashMap<>())
+        ? DeferredValue.instance(new PyMap(new LinkedHashMap<>()))
+        : new PyMap(new LinkedHashMap<>())
     );
   }
 
@@ -186,14 +186,14 @@ public class AliasedEagerImportingStrategy implements EagerImportingStrategy {
       if (((DeferredValue) parentValueForChild).getOriginalValue() instanceof Map) {
         return (Map<String, Object>) ((DeferredValue) parentValueForChild).getOriginalValue();
       }
-      Map<String, Object> newMap = new PyMap(new HashMap<>());
+      Map<String, Object> newMap = new PyMap(new LinkedHashMap<>());
       child
         .getContext()
         .getParent()
         .put(currentImportAlias, DeferredValue.instance(newMap));
       return newMap;
     } else {
-      Map<String, Object> newMap = new PyMap(new HashMap<>());
+      Map<String, Object> newMap = new PyMap(new LinkedHashMap<>());
       child
         .getContext()
         .getParent()
