@@ -71,11 +71,11 @@ Jinjava needs to know how to interpret template paths, so it can properly handle
 ```
 
 By default, it will load only a `ClasspathResourceLocator` which will allow loading from ANY file in the classpath inclusing class files. If you want to allow Jinjava to load any file from the 
-file system, you can add a `FileResourceLocator`. Be aware the security risks of allowing user input to prevent a user
+file system, you can add a `FileLocator`. Be aware the security risks of allowing user input to prevent a user
 from adding code such as `{% include '/etc/password' %}`.
  
 You will likely want to provide your own implementation of 
-`ResourceLoader` to hook into your application's template repository, and then tell jinjava about it:
+`ResourceLocator` to hook into your application's template repository, and then tell jinjava about it:
 
 ```java
 JinjavaConfig config = JinjavaConfig.builder().build();
@@ -90,7 +90,8 @@ To use more than one `ResourceLocator`, use a `CascadingResourceLocator`.
 JinjavaConfig config = JinjavaConfig.builder().build();
 
 Jinjava jinjava = new Jinjava(config);
-jinjava.setResourceLocator(new MyCustomResourceLocator(), new FileResourceLocator());
+jinjava.setResourceLocator(
+    new CascadingResourceLocator(new MyCustomResourceLocator(), new FileLocator()));
 ```
 
 ### Custom tags, filters and functions
@@ -104,7 +105,7 @@ jinjava.getGlobalContext().registerTag(new MyCustomTag());
 jinjava.getGlobalContext().registerFilter(new MyAwesomeFilter());
 // define a custom public static function (this one will bind to myfn:my_func('foo', 42))
 jinjava.getGlobalContext().registerFunction(new ELFunctionDefinition("myfn", "my_func", 
-    MyFuncsClass.class, "myFunc", String.class, Integer.class);
+    MyFuncsClass.class, "myFunc", String.class, Integer.class));
 
 // define any number of classes which extend Importable
 jinjava.getGlobalContext().registerClasses(Class<? extends Importable>... classes);
