@@ -27,6 +27,7 @@ import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.interpret.InvalidInputException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.RenderResult;
+import com.hubspot.jinjava.interpret.RenderingDisabledException;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.interpret.TemplateSyntaxException;
@@ -253,6 +254,12 @@ public class Jinjava {
         String result = stripTrailingNewlineIfNeeded(interpreter.render(template));
         return new RenderResult(
           result,
+          interpreter.getContext(),
+          interpreter.getErrorsCopy()
+        );
+      } catch (RenderingDisabledException e) {
+        return new RenderResult(
+          TemplateError.fromRenderingDisabledException(e),
           interpreter.getContext(),
           interpreter.getErrorsCopy()
         );

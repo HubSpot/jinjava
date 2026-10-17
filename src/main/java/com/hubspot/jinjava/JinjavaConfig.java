@@ -49,6 +49,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 import javax.el.ELResolver;
 import org.immutables.value.Value;
 
@@ -157,6 +158,11 @@ public class JinjavaConfig {
   @Value.Default
   public int getMaxNumDeferredTokens() {
     return 1000;
+  }
+
+  @Value.Default
+  public Supplier<Boolean> getRenderingEnabledSupplier() {
+    return () -> true;
   }
 
   @Value.Default

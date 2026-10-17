@@ -171,6 +171,23 @@ public class TemplateError {
     );
   }
 
+  public static TemplateError fromRenderingDisabledException(
+    RenderingDisabledException ex
+  ) {
+    return new TemplateError(
+      ErrorType.FATAL,
+      ErrorReason.DISABLED,
+      ErrorItem.TEMPLATE,
+      ex.getMessage(),
+      null,
+      -1,
+      -1,
+      ex,
+      BasicTemplateErrorCategory.UNKNOWN,
+      ImmutableMap.of()
+    );
+  }
+
   public static TemplateError fromOutputTooBigException(Exception ex) {
     return new TemplateError(
       ErrorType.FATAL,
