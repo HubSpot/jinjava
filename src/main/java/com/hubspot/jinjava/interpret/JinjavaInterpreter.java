@@ -284,6 +284,12 @@ public class JinjavaInterpreter implements PyishSerializable {
     }
   }
 
+  private void checkRenderingEnabled() {
+    if (!Boolean.TRUE.equals(config.getRenderingEnabledSupplier().get())) {
+      throw new RenderingDisabledException();
+    }
+  }
+
   private TemporaryValueClosable<ErrorHandlingStrategy> ignoreParseErrorsIfActivated() {
     return config
         .getFeatures()
@@ -314,6 +320,7 @@ public class JinjavaInterpreter implements PyishSerializable {
    * @return rendered result
    */
   public String render(String template, long renderLimit) {
+    checkRenderingEnabled();
     return render(parse(template), true, renderLimit);
   }
 
@@ -352,6 +359,7 @@ public class JinjavaInterpreter implements PyishSerializable {
    * @return rendered result
    */
   private String render(Node root, boolean processExtendRoots, long renderLimit) {
+    checkRenderingEnabled();
     boolean pushed = false;
     //noinspection ErrorProne
     if (JinjavaInterpreter.getCurrent() != this) {
