@@ -4,6 +4,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 import com.hubspot.jinjava.BaseInterpretingTest;
+import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.objects.SafeString;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -531,9 +532,9 @@ public class IpAddrFilterTest extends BaseInterpretingTest {
   public void itValidatesCidrForIndexesAndWildcardMasks() {
     for (String query : Arrays.asList("0", "wildcard")) {
       assertThatThrownBy(() -> ipAddrFilter.filter("192.168.10.1/33", interpreter, query))
-        .isInstanceOf(com.hubspot.jinjava.interpret.InvalidArgumentException.class);
+        .isInstanceOf(InvalidArgumentException.class);
       assertThatThrownBy(() -> ipAddrFilter.filter("2001:db8::/129", interpreter, query))
-        .isInstanceOf(com.hubspot.jinjava.interpret.InvalidArgumentException.class);
+        .isInstanceOf(InvalidArgumentException.class);
     }
   }
 

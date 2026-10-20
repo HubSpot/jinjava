@@ -37,7 +37,10 @@ import org.apache.commons.net.util.SubnetUtils;
       value = "function",
       type = "string",
       defaultValue = "prefix",
-      desc = "Name of function. Supported functions: 'prefix', 'netmask', 'network', 'address', 'broadcast', 'wildcard', or a numeric address index (negative indexes count from the end)"
+      desc = "Name of function. Supported functions: 'prefix', 'netmask', 'network', 'address', 'broadcast', or 'wildcard'. " +
+      "A numeric index selects an address from the network and preserves its prefix; negative indexes count from the end. " +
+      "Out-of-range indexes return false, except that individual hosts are returned unchanged for any index. " +
+      "The 'wildcard' query returns the inverse netmask."
     ),
   },
   snippets = {
@@ -52,6 +55,22 @@ import org.apache.commons.net.util.SubnetUtils;
       desc = "This example shows how to filter list of ip addresses",
       code = "{{ ['192.108.0.1', null, True, 13, '2000::'] | ipaddr }}",
       output = "['192.108.0.1', '2000::']"
+    ),
+    @JinjavaSnippet(
+      desc = "Select the network address and first host address, retaining the CIDR prefix",
+      code = "{{ '192.168.10.0/24' | ipaddr(0) }}\n" +
+      "{{ '192.168.10.0/24' | ipaddr(1) }}",
+      output = "192.168.10.0/24\n192.168.10.1/24"
+    ),
+    @JinjavaSnippet(
+      desc = "A negative index selects an address from the end of the subnet",
+      code = "{{ '192.168.10.0/24' | ipaddr(-1) }}",
+      output = "192.168.10.255/24"
+    ),
+    @JinjavaSnippet(
+      desc = "Return the wildcard mask for an IPv4 subnet",
+      code = "{{ '192.168.10.0/24' | ipaddr('wildcard') }}",
+      output = "0.0.0.255"
     ),
   }
 )
@@ -293,6 +312,7 @@ public class IpAddrFilter implements Filter {
     }
   }
 
+  /** Select an address relative to the network without enumerating the subnet. */
   private Object getIndexedAddress(
     JinjavaInterpreter interpreter,
     String address,
@@ -303,12 +323,14 @@ public class IpAddrFilter implements Filter {
     BigInteger first;
     if (isv4) {
       SubnetUtils.SubnetInfo subnet = getSubnetUtils(interpreter, address).getInfo();
+      // Convert the signed IPv4 integer to an unsigned value before doing arithmetic.
       first =
         BigInteger.valueOf(subnet.asInteger(subnet.getNetworkAddress()) & 0xffffffffL);
     } else {
       first = getIpv6Network(interpreter, address).getFirst().toBigInteger();
     }
     BigInteger size = BigInteger.ONE.shiftLeft((isv4 ? 32 : 128) - prefix);
+    // Match Ansible: a single-address network returns its address for any index.
     BigInteger index = size.equals(BigInteger.ONE)
       ? BigInteger.ZERO
       : new BigInteger(parameter);
