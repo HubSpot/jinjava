@@ -2,6 +2,8 @@ package com.hubspot.jinjava.lib.filter;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
+import com.google.common.net.InetAddresses;
+import com.googlecode.ipv6.IPv6Address;
 import com.googlecode.ipv6.IPv6Network;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
@@ -11,6 +13,7 @@ import com.hubspot.jinjava.interpret.InvalidReason;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.util.ForLoop;
 import com.hubspot.jinjava.util.ObjectIterator;
+import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -34,7 +37,7 @@ import org.apache.commons.net.util.SubnetUtils;
       value = "function",
       type = "string",
       defaultValue = "prefix",
-      desc = "Name of function. Supported functions: 'prefix', 'netmask', 'network', 'address', 'broadcast'"
+      desc = "Name of function. Supported functions: 'prefix', 'netmask', 'network', 'address', 'broadcast', 'wildcard', or a numeric address index (negative indexes count from the end)"
     ),
   },
   snippets = {
@@ -73,6 +76,7 @@ public class IpAddrFilter implements Filter {
   private static final String GATEWAY_STRING = "gateway";
   private static final String PUBLIC_STRING = "public";
   private static final String PRIVATE_STRING = "private";
+  private static final String WILDCARD_STRING = "wildcard";
   private static final String AVAILABLE_FUNCTIONS = Joiner
     .on(", ")
     .join(
@@ -83,7 +87,9 @@ public class IpAddrFilter implements Filter {
       NETWORK_STRING,
       GATEWAY_STRING,
       PUBLIC_STRING,
-      PRIVATE_STRING
+      PRIVATE_STRING,
+      WILDCARD_STRING,
+      "numeric index"
     );
 
   @Override
@@ -214,8 +220,13 @@ public class IpAddrFilter implements Filter {
       return ipAddress;
     }
 
+    boolean isv4 = IP4_PATTERN.matcher(ipAddress).matches();
+    boolean numericIndex = parameter.matches("[+-]?[0-9]+");
     if (parts.size() != 2) {
-      return null;
+      if (numericIndex) {
+        return ipAddress;
+      }
+      return parameter.equals(WILDCARD_STRING) ? (isv4 ? "0.0.0.0" : "::") : null;
     }
 
     String prefixString = parts.get(1);
@@ -232,8 +243,22 @@ public class IpAddrFilter implements Filter {
       );
     }
 
-    boolean isv4 = IP4_PATTERN.matcher(ipAddress).matches();
+    if (numericIndex) {
+      return getIndexedAddress(interpreter, fullAddress, prefix, isv4, parameter);
+    }
     switch (parameter) {
+      case WILDCARD_STRING:
+        if (isv4) {
+          SubnetUtils.SubnetInfo subnet = getSubnetUtils(interpreter, fullAddress)
+            .getInfo();
+          return InetAddresses
+            .fromInteger(~subnet.asInteger(subnet.getNetmask()))
+            .getHostAddress();
+        }
+        getIpv6Network(interpreter, fullAddress); // Validate the CIDR before shifting.
+        return IPv6Address
+          .fromBigInteger(BigInteger.ONE.shiftLeft(128 - prefix).subtract(BigInteger.ONE))
+          .toString();
       case PREFIX_STRING:
         return prefix;
       case NETMASK_STRING:
@@ -266,6 +291,41 @@ public class IpAddrFilter implements Filter {
           AVAILABLE_FUNCTIONS
         );
     }
+  }
+
+  private Object getIndexedAddress(
+    JinjavaInterpreter interpreter,
+    String address,
+    int prefix,
+    boolean isv4,
+    String parameter
+  ) {
+    BigInteger first;
+    if (isv4) {
+      SubnetUtils.SubnetInfo subnet = getSubnetUtils(interpreter, address).getInfo();
+      first =
+        BigInteger.valueOf(subnet.asInteger(subnet.getNetworkAddress()) & 0xffffffffL);
+    } else {
+      first = getIpv6Network(interpreter, address).getFirst().toBigInteger();
+    }
+    BigInteger size = BigInteger.ONE.shiftLeft((isv4 ? 32 : 128) - prefix);
+    BigInteger index = size.equals(BigInteger.ONE)
+      ? BigInteger.ZERO
+      : new BigInteger(parameter);
+    if (index.signum() < 0) {
+      index = index.add(size);
+    }
+    if (index.signum() < 0 || index.compareTo(size) >= 0) {
+      return false;
+    }
+    BigInteger selected = first.add(index);
+    return (
+      (isv4
+          ? InetAddresses.fromInteger(selected.intValue()).getHostAddress()
+          : IPv6Address.fromBigInteger(selected).toString()) +
+      "/" +
+      prefix
+    );
   }
 
   private SubnetUtils getSubnetUtils(JinjavaInterpreter interpreter, String address) {
