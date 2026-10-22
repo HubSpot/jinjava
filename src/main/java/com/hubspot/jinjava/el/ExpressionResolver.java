@@ -5,6 +5,7 @@ import static org.apache.commons.lang3.exception.ExceptionUtils.getRootCauseMess
 import com.google.common.collect.ImmutableMap;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.el.ext.NamedParameter;
+import com.hubspot.jinjava.el.ext.eager.EagerExtendedSyntaxBuilder;
 import com.hubspot.jinjava.interpret.CollectionTooBigException;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.DisabledException;
@@ -25,6 +26,7 @@ import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
 import com.hubspot.jinjava.objects.serialization.PyishObjectMapper;
 import com.hubspot.jinjava.util.WhitespaceUtils;
 import de.odysseus.el.tree.TreeBuilderException;
+import de.odysseus.el.tree.impl.Builder.Feature;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -41,6 +43,7 @@ public class ExpressionResolver {
 
   private final JinjavaInterpreter interpreter;
   private final ExpressionFactory expressionFactory;
+  private final JinjavaInterpreterResolver interpreterResolver;
   private final ReturnTypeValidatingJinjavaInterpreterResolver resolver;
   private final JinjavaELContext elContext;
   private final ObjectUnwrapper objectUnwrapper;
@@ -55,10 +58,11 @@ public class ExpressionResolver {
         ? jinjava.getEagerExpressionFactory()
         : jinjava.getExpressionFactory();
 
+    this.interpreterResolver = new JinjavaInterpreterResolver(interpreter);
     this.resolver =
       new ReturnTypeValidatingJinjavaInterpreterResolver(
         interpreter.getConfig().getReturnTypeValidator(),
-        new JinjavaInterpreterResolver(interpreter)
+        interpreterResolver
       );
     this.elContext = new JinjavaELContext(interpreter, resolver);
     for (ELFunctionDefinition fn : jinjava.getGlobalContext().getAllFunctions()) {
@@ -118,8 +122,17 @@ public class ExpressionResolver {
         elExpression,
         Object.class
       );
+      interpreterResolver.resetMethodInvoked();
       Object result = valueExp.getValue(elContext);
-      if (result == null && interpreter.getConfig().isFailOnUnknownTokens()) {
+      boolean nullReturnedByMethod =
+        result == null &&
+        interpreterResolver.wasMethodInvoked() &&
+        expressionIsMethodInvocation(elExpression);
+      if (
+        result == null &&
+        interpreter.getConfig().isFailOnUnknownTokens() &&
+        !nullReturnedByMethod
+      ) {
         throw new UnknownTokenException(
           expression,
           interpreter.getLineNumber(),
@@ -225,6 +238,16 @@ public class ExpressionResolver {
     }
 
     return null;
+  }
+
+  private boolean expressionIsMethodInvocation(String expression) {
+    ExtendedSyntaxBuilder builder = interpreter
+        .getConfig()
+        .getExecutionMode()
+        .useEagerParser()
+      ? new EagerExtendedSyntaxBuilder(Feature.METHOD_INVOCATIONS, Feature.VARARGS)
+      : new ExtendedSyntaxBuilder(Feature.METHOD_INVOCATIONS, Feature.VARARGS);
+    return builder.build(expression).getRoot().isMethodInvocation();
   }
 
   private void handleELException(String expression, ELException e) {
