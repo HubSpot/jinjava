@@ -58,6 +58,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
       add(new JinjavaListELResolver(true));
       add(new TypeConvertingMapELResolver(true));
       add(new ResourceBundleELResolver());
+      add(new JinjavaStringELResolver());
       add(new JinjavaBeanELResolver(true));
     }
   };
@@ -68,6 +69,7 @@ public class JinjavaInterpreterResolver extends SimpleResolver {
       add(new JinjavaListELResolver(false));
       add(new TypeConvertingMapELResolver(false));
       add(new ResourceBundleELResolver());
+      add(new JinjavaStringELResolver());
       add(new JinjavaBeanELResolver(false));
     }
   };
