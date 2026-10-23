@@ -24,9 +24,11 @@ import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.RecordComponent;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.el.CompositeELResolver;
@@ -39,7 +41,7 @@ import javax.el.PropertyNotFoundException;
 import javax.el.PropertyNotWritableException;
 
 /**
- * Defines property resolution behavior on objects using the JavaBeans component architecture. This
+ * Defines property resolution behavior for JavaBeans properties and record components. This
  * resolver handles base objects of any type, as long as the base is not null. It accepts any object
  * as a property, and coerces it to a string. That string is then used to find a JavaBeans compliant
  * property on the base object. The value is accessed using JavaBeans getters and setters. This
@@ -66,7 +68,7 @@ public class BeanELResolver extends ELResolver {
     public BeanProperties(Class<?> baseClass) {
       PropertyDescriptor[] descriptors;
       try {
-        descriptors = Introspector.getBeanInfo(baseClass).getPropertyDescriptors();
+        descriptors = getPropertyDescriptors(baseClass);
       } catch (IntrospectionException e) {
         throw new ELException(e);
       }
@@ -78,6 +80,28 @@ public class BeanELResolver extends ELResolver {
     public BeanProperty getBeanProperty(String property) {
       return map.get(property);
     }
+  }
+
+  private static PropertyDescriptor[] getPropertyDescriptors(Class<?> baseClass)
+    throws IntrospectionException {
+    PropertyDescriptor[] descriptors = Introspector
+      .getBeanInfo(baseClass)
+      .getPropertyDescriptors();
+    if (!baseClass.isRecord()) {
+      return descriptors;
+    }
+
+    Map<String, PropertyDescriptor> properties = new LinkedHashMap<>();
+    for (PropertyDescriptor descriptor : descriptors) {
+      properties.put(descriptor.getName(), descriptor);
+    }
+    for (RecordComponent component : baseClass.getRecordComponents()) {
+      properties.putIfAbsent(
+        component.getName(),
+        new PropertyDescriptor(component.getName(), component.getAccessor(), null)
+      );
+    }
+    return properties.values().toArray(PropertyDescriptor[]::new);
   }
 
   protected static final class BeanProperty {
@@ -236,7 +260,7 @@ public class BeanELResolver extends ELResolver {
     if (isResolvable(base)) {
       final PropertyDescriptor[] properties;
       try {
-        properties = Introspector.getBeanInfo(base.getClass()).getPropertyDescriptors();
+        properties = getPropertyDescriptors(base.getClass());
       } catch (IntrospectionException e) {
         return Collections.<FeatureDescriptor>emptyList().iterator();
       }
