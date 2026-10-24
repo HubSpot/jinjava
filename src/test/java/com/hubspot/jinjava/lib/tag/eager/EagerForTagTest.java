@@ -55,6 +55,110 @@ public class EagerForTagTest extends ForTagTest {
   }
 
   @Test
+  public void itPreservesElseForADeferredLoop() {
+    String result = interpreter.render(
+      "{% for item in deferred %}{{ item }}{% else %}EMPTY{% endfor %}"
+    );
+    assertThat(result).contains("{% else %}");
+    for (List<String> values : List.of(List.<String>of(), List.of("a", "b"))) {
+      JinjavaInterpreter secondPass = jinjava.newInterpreter();
+      secondPass.getContext().put("deferred", values);
+      assertThat(secondPass.render(result)).isEqualTo(values.isEmpty() ? "EMPTY" : "ab");
+      assertThat(secondPass.getErrors()).isEmpty();
+    }
+  }
+
+  @Test
+  public void itKeepsDeferredForElseStateChangesInSeparateBranches() {
+    String template =
+      "{% set values = ['start'] %}{% set item = 'outer' %}" +
+      "{% for item in deferred %}{{ values|join(',') }}{% do values.append(item) %}{% set local = 'body' %}" +
+      "{% else %}{{ item }}:{{ values|join(',') }}{% do values.append('empty') %}{% set local = 'else' %}" +
+      "{% endfor %}|{{ values|join(',') }}|{{ local|default('missing') }}";
+    String result = interpreter.render(template);
+    assertThat(result).contains("{% else %}");
+    assertThat(interpreter.getErrors()).isEmpty();
+    for (List<String> values : List.of(List.<String>of(), List.of("a", "b"))) {
+      assertSecondPassMatchesDirect(template, result, values);
+    }
+  }
+
+  @Test
+  public void itResolvesDeferredValuesInTheSelectedElseBranch() {
+    String template = "{% for item in [] %}BODY{% else %}{{ deferred }}{% endfor %}";
+    String result = interpreter.render(template);
+    assertThat(interpreter.getErrors()).isEmpty();
+    assertSecondPassMatchesDirect(template, result, "resolved");
+  }
+
+  @Test
+  public void itPreservesNestedForElseAndOuterLoopValuesWhenDeferred() {
+    String template =
+      "{% for outer in ['a', 'b'] %}{% for item in deferred %}{{ outer }}{{ item }}" +
+      "{% else %}{{ outer }}{{ loop.index }}{% endfor %}{% endfor %}";
+    String result = interpreter.render(template);
+    assertThat(interpreter.getErrors()).isEmpty();
+    assertSecondPassMatchesDirect(template, result, List.of());
+    assertSecondPassMatchesDirect(template, result, List.of("x", "y"));
+  }
+
+  @Test
+  public void itPreservesDeferredLoopControlWithoutExecutingElse() {
+    for (String control : List.of("break", "continue")) {
+      String template =
+        "{% for item in [1, 2] %}{% if deferred %}{% " +
+        control +
+        " %}{% endif %}{{ item }}{% else %}EMPTY{% endfor %}";
+      String result = interpreter.render(template);
+      assertSecondPassMatchesDirect(template, result, true);
+      assertSecondPassMatchesDirect(template, result, false);
+    }
+    assertThat(interpreter.getErrors()).isEmpty();
+  }
+
+  @Test
+  public void itPreservesDeferredElseWhitespaceAndAutoescaping() {
+    String template =
+      "{% autoescape true %}A {%- for item in deferred -%}{{ item }}" +
+      "{%- else -%}{{ '<b>' }}{%- endfor -%} Z{% endautoescape %}";
+    String result = interpreter.render(template);
+    assertSecondPassMatchesDirect(template, result, List.of());
+    assertSecondPassMatchesDirect(template, result, List.of("<b>"));
+    assertThat(interpreter.getErrors()).isEmpty();
+  }
+
+  @Test
+  public void itDefersElseWhenOutputIsTooLarge() {
+    String template =
+      "{% for item in [] %}BODY{% else %}" +
+      "a".repeat((int) MAX_OUTPUT_SIZE) +
+      "{% endfor %}";
+    assertThat(interpreter.render(template)).hasSize((int) MAX_OUTPUT_SIZE);
+    assertThat(interpreter.getErrors()).isEmpty();
+    String tooBig =
+      "{% for item in [] %}BODY{% else %}{% for i in range(501) %}1234567890{% endfor %}{% endfor %}";
+    String deferred = interpreter.render(tooBig);
+    assertThat(deferred).contains("{% for i in range(501) %}", "{% endfor %}");
+    assertThat(jinjava.newInterpreter().render(deferred))
+      .isEqualTo("1234567890".repeat(501));
+    assertThat(interpreter.getErrors()).isEmpty();
+  }
+
+  private void assertSecondPassMatchesDirect(
+    String template,
+    String partiallyRendered,
+    Object value
+  ) {
+    JinjavaInterpreter direct = jinjava.newInterpreter();
+    direct.getContext().put("deferred", value);
+    JinjavaInterpreter secondPass = jinjava.newInterpreter();
+    secondPass.getContext().put("deferred", value);
+    assertThat(secondPass.render(partiallyRendered)).isEqualTo(direct.render(template));
+    assertThat(direct.getErrors()).isEmpty();
+    assertThat(secondPass.getErrors()).isEmpty();
+  }
+
+  @Test
   public void itRegistersDeferredToken() {
     expectedNodeInterpreter.assertExpectedOutput("registers-eager-token");
     Optional<DeferredToken> maybeDeferredToken = context
