@@ -1,4 +1,8 @@
 # Jinjava Releases #
+### 2026-10-29 Version 2.7.7 ([Maven Central](https://search.maven.org/artifact/com.hubspot.jinjava/jinjava/2.7.7/jar)) ###
+* Escape single quotes, `<`, `>` and `&` in the `escapejs` filter so output can't break out of a JavaScript string or `<script>` element
+* Confine `FileLocator` and `ClasspathResourceLocator` to their root, rejecting absolute paths and `..` traversal in `include`, `import`, `from` and `extends`
+* [Upgrade jsoup to 1.23.2 to fix CVE-2026-75140, which changes whitespace in `truncatehtml` and `closehtml` output](https://github.com/HubSpot/jinjava/pull/1354)
 ### 2025-01-30 Version 2.7.6 ([Maven Central](https://search.maven.org/artifact/com.hubspot.jinjava/jinjava/2.7.6/jar)) ###
 * Disallow accessing properties on restricted classes while rendering through ForTag
 * Upgrade jackson to version 2.20
