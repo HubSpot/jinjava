@@ -21,6 +21,7 @@
 
     <dep.plugin.jacoco.version>0.8.3</dep.plugin.jacoco.version>
     <dep.plugin.javadoc.version>3.0.1</dep.plugin.javadoc.version>
+    <dep.plugin.central-publishing.version>0.9.0</dep.plugin.central-publishing.version>
     <dep.hubspot-immutables.version>1.9</dep.hubspot-immutables.version>
     <dep.jackson.version>2.20.1</dep.jackson.version>
 
