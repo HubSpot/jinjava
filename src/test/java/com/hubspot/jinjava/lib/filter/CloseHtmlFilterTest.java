@@ -31,6 +31,6 @@ public class CloseHtmlFilterTest extends BaseInterpretingTest {
   public void itClosesMultipleTags() {
     String openTags = "<h1><p>Hello, world!";
     assertThat(f.filter(openTags, interpreter))
-      .isEqualTo("<h1><p>Hello, world!</p></h1>");
+      .isEqualTo("<h1>\n <p>Hello, world!</p>\n</h1>");
   }
 }
