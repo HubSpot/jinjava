@@ -10,6 +10,8 @@ import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateError;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.mode.EagerExecutionMode;
 import com.hubspot.jinjava.random.RandomNumberGeneratorStrategy;
 import com.hubspot.jinjava.testobjects.EagerAstDotTestObjects;
@@ -74,5 +76,8 @@ public class EagerAstDotTest extends BaseInterpretingTest {
     assertThat(interpreter.render("{{ foo_map.bar.deferred }}"))
       .isEqualTo("{{ foo_map.bar.deferred }}");
     assertThat(interpreter.getContext().getDeferredNodes()).isNotEmpty();
+    assertThat(interpreter.getErrors())
+      .extracting(TemplateError::getSeverity)
+      .containsExactly(ErrorType.FATAL);
   }
 }

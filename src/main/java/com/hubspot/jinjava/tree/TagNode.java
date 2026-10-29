@@ -21,6 +21,7 @@ import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.interpret.InvalidInputException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.OutputTooBigException;
+import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.lib.tag.FlexibleTag;
 import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.tree.output.OutputNode;
@@ -58,6 +59,11 @@ public class TagNode extends Node {
       return tag.interpretOutput(this, interpreter);
     } catch (DeferredValueException e) {
       interpreter.getContext().handleDeferredNode(this);
+      if (interpreter.getConfig().getExecutionMode().useEagerParser()) {
+        interpreter.addError(
+          TemplateError.fromException(e, getLineNumber(), getStartPosition())
+        );
+      }
       return new RenderedOutputNode(reconstructImage());
     } catch (
       InterpretException

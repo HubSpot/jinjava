@@ -6,7 +6,9 @@ import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.ExpectedNodeInterpreter;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.lib.tag.SetTagTest;
 import com.hubspot.jinjava.mode.EagerExecutionMode;
 import com.hubspot.jinjava.objects.Namespace;
@@ -165,9 +167,12 @@ public class EagerSetTagTest extends SetTagTest {
     }
     context.setDeferredExecutionMode(true);
     interpreter.render(String.format("{%% set deferred = '%s' %%}", tooLong));
-    assertThat(interpreter.getErrors()).hasSize(1);
-    assertThat(interpreter.getErrors().get(0).getReason())
-      .isEqualTo(ErrorReason.OUTPUT_TOO_BIG);
+    assertThat(interpreter.getErrors())
+      .extracting(TemplateError::getReason)
+      .containsExactly(ErrorReason.EXCEPTION, ErrorReason.OUTPUT_TOO_BIG);
+    assertThat(interpreter.getErrors().get(0).getSeverity()).isEqualTo(ErrorType.FATAL);
+    assertThat(interpreter.getErrors().get(0).getMessage())
+      .contains("Output too big for eager execution");
   }
 
   @Test
