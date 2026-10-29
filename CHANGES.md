@@ -1,4 +1,9 @@
 # Jinjava Releases #
+### 2026-10-29 Version 2.8.5 ([Maven Central](https://search.maven.org/artifact/com.hubspot.jinjava/jinjava/2.8.5/jar)) ###
+* Escape single quotes, `<`, `>` and `&` in the `escapejs` filter so output can't break out of a JavaScript string or `<script>` element
+* Confine `FileLocator` and `ClasspathResourceLocator` to their root, rejecting absolute paths and `..` traversal in `include`, `import`, `from` and `extends`
+* [Upgrade jsoup to 1.23.2 to fix CVE-2026-75140, which changes whitespace in `truncatehtml` and `closehtml` output](https://github.com/HubSpot/jinjava/pull/1354)
+
 ### 2026-07-24 Version 2.8.4 ([Maven Central](https://search.maven.org/artifact/com.hubspot.jinjava/jinjava/2.8.4/jar)) ###
 * [Add support for configurable multi-character delimiters](https://github.com/HubSpot/jinjava/pull/1305)
 * [Treat backslash as an escape character only inside quoted strings, matching Jinja2](https://github.com/HubSpot/jinjava/pull/1306)
