@@ -7,7 +7,9 @@ import com.hubspot.jinjava.ExpectedNodeInterpreter;
 import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.lib.tag.DoTagTest;
 import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.mode.EagerExecutionMode;
@@ -65,8 +67,11 @@ public class EagerDoTagTest extends DoTagTest {
     }
     context.setDeferredExecutionMode(true);
     interpreter.render(String.format("{%% do deferred.append('%s') %%}", tooLong));
-    assertThat(interpreter.getErrors()).hasSize(1);
-    assertThat(interpreter.getErrors().get(0).getReason())
-      .isEqualTo(ErrorReason.OUTPUT_TOO_BIG);
+    assertThat(interpreter.getErrors())
+      .extracting(TemplateError::getReason)
+      .containsExactly(ErrorReason.EXCEPTION, ErrorReason.OUTPUT_TOO_BIG);
+    assertThat(interpreter.getErrors().get(0).getSeverity()).isEqualTo(ErrorType.FATAL);
+    assertThat(interpreter.getErrors().get(0).getMessage())
+      .contains("Can not convert deferred result to string");
   }
 }

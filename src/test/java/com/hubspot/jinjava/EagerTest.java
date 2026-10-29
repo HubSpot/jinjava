@@ -9,6 +9,7 @@ import com.google.common.io.Resources;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.loader.LocationResolver;
 import com.hubspot.jinjava.loader.RelativePathResolver;
 import com.hubspot.jinjava.loader.ResourceLocator;
@@ -1591,6 +1592,14 @@ public class EagerTest {
     interpreter.render(input);
     // We don't support this
     assertThat(interpreter.getContext().getDeferredNodes()).isNotEmpty();
+    assertThat(interpreter.getErrors())
+      .singleElement()
+      .satisfies(error -> {
+        assertThat(error.getSeverity()).isEqualTo(ErrorType.FATAL);
+        assertThat(error.getMessage())
+          .contains("Cannot modify temporary import alias outside of import tag");
+      });
+    interpreter.removeLastError();
   }
 
   @Test
