@@ -80,4 +80,43 @@ public class EagerAstDotTest extends BaseInterpretingTest {
       .extracting(TemplateError::getSeverity)
       .containsExactly(ErrorType.FATAL);
   }
+
+  @Test
+  public void itResolvesRecordComponents() {
+    interpreter
+      .getContext()
+      .put("record", new EagerAstDotTestObjects.RecordValue("resolved"));
+
+    assertThat(interpreter.render("{{ record.value }} {{ record['value'] }}"))
+      .isEqualTo("resolved resolved");
+    assertThat(interpreter.getErrors()).isEmpty();
+  }
+
+  @Test
+  public void itResolvesComponentsAfterARecordIsAvailable() {
+    String partiallyRendered = interpreter.render("{{ deferred.value }}");
+    assertThat(partiallyRendered).isEqualTo("{{ deferred.value }}");
+
+    interpreter
+      .getContext()
+      .put("deferred", new EagerAstDotTestObjects.RecordValue("resolved"));
+    assertThat(interpreter.render(partiallyRendered)).isEqualTo("resolved");
+    assertThat(interpreter.getErrors()).isEmpty();
+  }
+
+  @Test
+  public void itDefersWhenRecordAccessorThrowsDeferredValueException() {
+    interpreter
+      .getContext()
+      .put("record", new EagerAstDotTestObjects.DeferredRecordValue(null));
+    String partiallyRendered = interpreter.render("{{ record.value }}");
+    assertThat(partiallyRendered).isEqualTo("{{ record.value }}");
+    assertThat(interpreter.getContext().getDeferredNodes()).isNotEmpty();
+
+    interpreter
+      .getContext()
+      .put("record", new EagerAstDotTestObjects.DeferredRecordValue("resolved"));
+    assertThat(interpreter.render(partiallyRendered)).isEqualTo("resolved");
+    assertThat(interpreter.getErrors()).isEmpty();
+  }
 }

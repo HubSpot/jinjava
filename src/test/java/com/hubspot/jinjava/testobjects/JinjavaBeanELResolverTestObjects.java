@@ -1,6 +1,35 @@
 package com.hubspot.jinjava.testobjects;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 public class JinjavaBeanELResolverTestObjects {
+
+  public record Person(String name, int age) {}
+
+  public record CustomAccessor(String name) {
+    @Override
+    public String name() {
+      return "accessor: " + name;
+    }
+  }
+
+  public record BeanGetter(String name) {
+    public Integer getName() {
+      return name.length();
+    }
+  }
+
+  public record WriteOnlyProperty(String name, AtomicReference<String> writtenValue) {
+    public void setName(String value) {
+      writtenValue.set(value);
+    }
+  }
+
+  private record PrivatePerson(String name) {}
+
+  public static Object privatePerson(String name) {
+    return new PrivatePerson(name);
+  }
 
   public static class TempItInvokesBestMethodWithSingleParam {
 
