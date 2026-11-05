@@ -324,6 +324,59 @@ public class StringTokenScannerSymbolsTest {
   }
 
   @Test
+  public void itRespectsWhitespaceOptionsWithCrLfAndAngleSymbols() {
+    assertCrLfWhitespaceOptions(
+      ANGLE_SYMBOLS,
+      "    <% if show %>\r\nhello\r\n    <% endif %>\r\ntail"
+    );
+  }
+
+  @Test
+  public void itRespectsWhitespaceOptionsWithCrLfAndLatexSymbols() {
+    assertCrLfWhitespaceOptions(
+      LATEX_SYMBOLS,
+      "    \\BLOCK{ if show }\r\nhello\r\n    \\BLOCK{ endif }\r\ntail"
+    );
+  }
+
+  @Test
+  public void itTrimsCrLfAroundCommentsAndRawBlocksWithCustomSymbols() {
+    for (StringTokenScannerSymbols symbols : Lists.newArrayList(
+      ANGLE_SYMBOLS,
+      LATEX_SYMBOLS
+    )) {
+      Jinjava j = new Jinjava(
+        BaseJinjavaTest
+          .newConfigBuilder()
+          .withTokenScannerSymbols(symbols)
+          .withTrimBlocks(true)
+          .withKeepTrailingNewline(true)
+          .build()
+      );
+      String expression =
+        symbols.getExpressionStart() + " value " + symbols.getExpressionEnd();
+      String template =
+        symbols.getOpeningComment() +
+        " comment " +
+        symbols.getClosingComment() +
+        "\r\n" +
+        symbols.getExpressionStartWithTag() +
+        " raw " +
+        symbols.getExpressionEndWithTag() +
+        "\r\n" +
+        expression +
+        "\r\n" +
+        symbols.getExpressionStartWithTag() +
+        " endraw " +
+        symbols.getExpressionEndWithTag() +
+        "\r\ntail";
+
+      assertThat(j.render(template, ImmutableMap.of("value", "evaluated")))
+        .isEqualTo(expression + "\r\ntail");
+    }
+  }
+
+  @Test
   public void builderRejectsEmptyDelimiter() {
     assertThatThrownBy(() ->
         StringTokenScannerSymbols.builder().withVariableStartString("").build()
@@ -504,6 +557,31 @@ public class StringTokenScannerSymbolsTest {
   }
 
   // ── Helper ────────────────────────────────────────────────────────────────
+
+  private void assertCrLfWhitespaceOptions(
+    StringTokenScannerSymbols symbols,
+    String template
+  ) {
+    for (boolean trimBlocks : new boolean[] { false, true }) {
+      for (boolean lstripBlocks : new boolean[] { false, true }) {
+        Jinjava j = new Jinjava(
+          BaseJinjavaTest
+            .newConfigBuilder()
+            .withTokenScannerSymbols(symbols)
+            .withTrimBlocks(trimBlocks)
+            .withLstripBlocks(lstripBlocks)
+            .withKeepTrailingNewline(true)
+            .build()
+        );
+        String indent = lstripBlocks ? "" : "    ";
+        String tagNewline = trimBlocks ? "" : "\r\n";
+
+        assertThat(j.render(template, ImmutableMap.of("show", true)))
+          .as("trimBlocks=%s, lstripBlocks=%s", trimBlocks, lstripBlocks)
+          .isEqualTo(indent + tagNewline + "hello\r\n" + indent + tagNewline + "tail");
+      }
+    }
+  }
 
   private Jinjava jinjavaWith(StringTokenScannerSymbols symbols) {
     return new Jinjava(

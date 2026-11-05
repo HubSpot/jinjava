@@ -151,6 +151,41 @@ public class TreeParserTest extends BaseInterpretingTest {
   }
 
   @Test
+  public void itTrimsCrLfAfterBlocks() {
+    interpreter =
+      new Jinjava(
+        BaseJinjavaTest
+          .newConfigBuilder()
+          .withLstripBlocks(true)
+          .withTrimBlocks(true)
+          .build()
+      )
+        .newInterpreter();
+    interpreter.getContext().put("bootefiDev", "sda");
+    interpreter.getContext().put("bootDev", "sda");
+    interpreter.getContext().put("rootDev", "sda");
+
+    String template =
+      "{% if bootefiDev %}\r\n" +
+      "part /boot/efi --fstype=\"efi\" --size=500 --ondisk={{ bootefiDev }}\r\n" +
+      "{% endif %}\r\n" +
+      "{% if bootDev %}\r\n" +
+      "part /boot --fstype ext4 --size=2048 --ondisk={{ bootDev }}\r\n" +
+      "{% endif %}\r\n" +
+      "{% if rootDev %}\r\n" +
+      "part / --fstype ext4 --size=1 --grow  --ondisk={{ rootDev }}\r\n" +
+      "{% endif %}\r\n";
+
+    assertThat(interpreter.render(interpreter.parse(template)))
+      .isEqualTo(
+        "part /boot/efi --fstype=\"efi\" --size=500 --ondisk=sda\r\n" +
+        "part /boot --fstype ext4 --size=2048 --ondisk=sda\r\n" +
+        "part / --fstype ext4 --size=1 --grow  --ondisk=sda\r\n"
+      );
+    assertThat(interpreter.getErrors()).isEmpty();
+  }
+
+  @Test
   public void trimAndLstripCommentBlocks() {
     interpreter =
       new Jinjava(
