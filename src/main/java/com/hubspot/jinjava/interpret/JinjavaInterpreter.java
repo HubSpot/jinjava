@@ -521,7 +521,9 @@ public class JinjavaInterpreter implements PyishSerializable {
           );
         }
       }
-      if (context.getDeferredTokens().size() > numDeferredTokensBefore) {
+      if (
+        preserveBlocks || context.getDeferredTokens().size() > numDeferredTokensBefore
+      ) {
         pathSetter.setValue(
           EagerReconstructionUtils.buildBlockOrInlineSetTag(
             RelativePathResolver.CURRENT_PATH_CONTEXT_KEY,
