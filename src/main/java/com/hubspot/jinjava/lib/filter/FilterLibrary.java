@@ -81,6 +81,7 @@ public class FilterLibrary extends SimpleLibrary<Filter> {
       LogFilter.class,
       LowerFilter.class,
       MapFilter.class,
+      MaxFilter.class,
       Md5Filter.class,
       MinusTimeFilter.class,
       MultiplyFilter.class,
