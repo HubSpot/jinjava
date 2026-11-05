@@ -8,6 +8,8 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.lib.fn.Functions;
 import com.hubspot.jinjava.objects.SafeString;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.Map;
 import java.util.Objects;
 import org.apache.commons.lang3.BooleanUtils;
@@ -52,6 +54,7 @@ public class TruncateHtmlFilter implements AdvancedFilter {
 
   private static final int DEFAULT_TRUNCATE_LENGTH = 255;
   private static final String DEFAULT_END = "...";
+  private static final String DELETE_MARKER_CLASS = "__deleteme";
   private static final String LENGTH_KEY = "length";
   private static final String END_KEY = "end";
   private static final String BREAKWORD_KEY = "breakword";
@@ -148,7 +151,7 @@ public class TruncateHtmlFilter implements AdvancedFilter {
         killwords
       );
       dom.select("body").traverse(visitor);
-      dom.select(".__deleteme").remove();
+      dom.select("." + DELETE_MARKER_CLASS).remove();
 
       return dom.select("body").html();
     }
@@ -162,6 +165,8 @@ public class TruncateHtmlFilter implements AdvancedFilter {
     private int textLen;
     private final String ending;
     private final boolean killwords;
+    private final Deque<Integer> keptVoidElementsAtEntry = new ArrayDeque<>();
+    private int keptVoidElements;
 
     ContentTruncatingNodeVisitor(int maxTextLen, String ending, boolean killwords) {
       this.maxTextLen = maxTextLen;
@@ -188,17 +193,33 @@ public class TruncateHtmlFilter implements AdvancedFilter {
         } else {
           textLen += textContent.length();
         }
+      } else if (node instanceof Element el) {
+        keptVoidElementsAtEntry.push(keptVoidElements);
+        if (isVoidElement(el)) {
+          if (textLen >= maxTextLen) {
+            el.addClass(DELETE_MARKER_CLASS);
+          } else {
+            keptVoidElements++;
+          }
+        }
       }
     }
 
     @Override
     public void tail(Node node, int depth) {
-      if (node instanceof Element) {
-        Element el = (Element) node;
-        if (StringUtils.isBlank(el.text())) {
-          el.addClass("__deleteme");
+      if (node instanceof Element el) {
+        boolean containsKeptVoidElement =
+          keptVoidElements > keptVoidElementsAtEntry.pop();
+        if (
+          !isVoidElement(el) && !containsKeptVoidElement && StringUtils.isBlank(el.text())
+        ) {
+          el.addClass(DELETE_MARKER_CLASS);
         }
       }
+    }
+
+    private static boolean isVoidElement(Element el) {
+      return el.tag().isEmpty();
     }
   }
 }
