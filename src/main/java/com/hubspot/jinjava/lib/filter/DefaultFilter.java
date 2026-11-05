@@ -19,7 +19,6 @@ import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
-import com.hubspot.jinjava.interpret.TemplateSyntaxException;
 import com.hubspot.jinjava.objects.PyWrapper;
 import com.hubspot.jinjava.util.ObjectTruthValue;
 import java.util.Map;
@@ -36,8 +35,7 @@ import java.util.Objects;
     @JinjavaParam(
       value = DefaultFilter.DEFAULT_VALUE_PARAM,
       type = "object",
-      desc = "Value to print when variable is not defined",
-      required = true
+      desc = "Value to print when variable is not defined; defaults to an empty string"
     ),
     @JinjavaParam(
       value = DefaultFilter.TRUTHY_PARAM,
@@ -68,16 +66,8 @@ public class DefaultFilter extends AbstractFilter implements AdvancedFilter {
     JinjavaInterpreter interpreter,
     Map<String, Object> parsedArgs
   ) {
-    if (parsedArgs.size() < 1) {
-      throw new TemplateSyntaxException(
-        interpreter,
-        getName(),
-        "requires either 1 (default value to use) or 2 (default value to use, default with variables that evaluate to false) arguments"
-      );
-    }
-
     boolean truthy = Boolean.TRUE.equals(parsedArgs.get(TRUTHY_PARAM));
-    Object defaultValue = parsedArgs.get(DEFAULT_VALUE_PARAM);
+    Object defaultValue = parsedArgs.getOrDefault(DEFAULT_VALUE_PARAM, "");
 
     if (truthy) {
       if (ObjectTruthValue.evaluate(object)) {

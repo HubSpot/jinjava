@@ -19,6 +19,40 @@ public class DefaultFilterTest extends BaseJinjavaTest {
   }
 
   @Test
+  public void itKeepsDefinedValuesWithoutADefaultArgument() {
+    assertThat(jinjava.render("{{ 'a' | default }}", new HashMap<>())).isEqualTo("a");
+    assertThat(jinjava.render("{{ 0 | default() }}", new HashMap<>())).isEqualTo("0");
+  }
+
+  @Test
+  public void itDefaultsUndefinedValuesToAnEmptyString() {
+    assertThat(
+      jinjava.render(
+        "{% set value = missing | default %}{{ type(value) }}:{{ value | length }}",
+        new HashMap<>()
+      )
+    )
+      .isEqualTo("str:0");
+  }
+
+  @Test
+  public void itDefaultsFalsyValuesWithoutAnExplicitDefault() {
+    assertThat(
+      jinjava.render(
+        "{% set value = false | default(truthy=True) %}{{ type(value) }}:{{ value | length }}",
+        new HashMap<>()
+      )
+    )
+      .isEqualTo("str:0");
+  }
+
+  @Test
+  public void itAllowsOmittedArgumentsForTheAlias() {
+    assertThat(jinjava.render("{{ 'a' | d }}:{{ missing | d }}", new HashMap<>()))
+      .isEqualTo("a:");
+  }
+
+  @Test
   public void itSetsDefaultStringValues() {
     assertThat(
       jinjava.render(
