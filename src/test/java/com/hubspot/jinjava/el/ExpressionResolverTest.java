@@ -10,6 +10,10 @@ import com.google.common.collect.Maps;
 import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.el.ext.AllowlistMethodValidator;
+import com.hubspot.jinjava.el.ext.AllowlistReturnTypeValidator;
+import com.hubspot.jinjava.el.ext.MethodValidatorConfig;
+import com.hubspot.jinjava.el.ext.ReturnTypeValidatorConfig;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.Context.Library;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -20,6 +24,7 @@ import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import com.hubspot.jinjava.testobjects.ExpressionResolverTestObjects;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
@@ -49,6 +54,102 @@ public class ExpressionResolverTest {
   @After
   public void teardown() {
     JinjavaInterpreter.popCurrent();
+  }
+
+  @Test
+  public void itRendersRecordProperties() {
+    for (String expression : List.of("person.name", "person['name']", "person.name()")) {
+      RenderResult result = jinjava.renderForResult(
+        "{{ " + expression + " }}",
+        Map.of("person", new ExpressionResolverTestObjects.Person("Ada"))
+      );
+      assertThat(result.getOutput()).as(expression).isEqualTo("Ada");
+      assertThat(result.getErrors()).as(expression).isEmpty();
+    }
+  }
+
+  @Test
+  public void itResolvesRecordComponentTypesAndNames() {
+    context.put(
+      "record",
+      new ExpressionResolverTestObjects.RecordValues(
+        "Ada",
+        37,
+        true,
+        new ExpressionResolverTestObjects.Person("Byron")
+      )
+    );
+    context.put("person", new ExpressionResolverTestObjects.Person(null));
+    assertThat(interpreter.resolveELExpression("record.first_name", -1)).isEqualTo("Ada");
+    assertThat(interpreter.resolveELExpression("record['age']", -1)).isEqualTo(37);
+    assertThat(interpreter.resolveELExpression("record.active", -1)).isEqualTo(true);
+    assertThat(interpreter.resolveELExpression("record.child.name", -1))
+      .isEqualTo("Byron");
+    assertThat(interpreter.resolveELExpression("record['child']['name']", -1))
+      .isEqualTo("Byron");
+    assertThat(interpreter.resolveELExpression("person.name", -1)).isNull();
+    assertThat(interpreter.getErrorsCopy()).isEmpty();
+  }
+
+  @Test
+  public void itRejectsRecordAccessorsOutsideTheMethodAllowlist() throws Exception {
+    List<Method> rejectedMethods = Lists.newArrayList();
+    JinjavaConfig config = BaseJinjavaTest
+      .newConfigBuilder()
+      .withMethodValidator(
+        AllowlistMethodValidator.create(
+          MethodValidatorConfig
+            .builder()
+            .addDefaultAllowlistGroups()
+            .setOnRejectedMethod(rejectedMethods::add)
+            .build()
+        )
+      )
+      .build();
+    JinjavaInterpreter restrictedInterpreter = new Jinjava(config).newInterpreter();
+    restrictedInterpreter
+      .getContext()
+      .put("person", new ExpressionResolverTestObjects.Person("Ada"));
+    assertThat(restrictedInterpreter.render("{{ person.name }}")).isEmpty();
+    assertThat(rejectedMethods)
+      .contains(ExpressionResolverTestObjects.Person.class.getMethod("name"));
+    assertThat(restrictedInterpreter.getErrorsCopy())
+      .extracting(TemplateError::getItem)
+      .containsExactly(ErrorItem.PROPERTY);
+  }
+
+  @Test
+  public void itRejectsRecordComponentValuesOutsideTheReturnTypeAllowlist() {
+    List<Class<?>> rejectedTypes = Lists.newArrayList();
+    JinjavaConfig config = BaseJinjavaTest
+      .newConfigBuilder()
+      .withReturnTypeValidator(
+        AllowlistReturnTypeValidator.create(
+          ReturnTypeValidatorConfig
+            .builder()
+            .addDefaultAllowlistGroups()
+            .addAllowedCanonicalClassNames(
+              ExpressionResolverTestObjects.RecordValues.class.getCanonicalName()
+            )
+            .setOnRejectedClass(rejectedTypes::add)
+            .build()
+        )
+      )
+      .build();
+    JinjavaInterpreter restrictedInterpreter = new Jinjava(config).newInterpreter();
+    restrictedInterpreter
+      .getContext()
+      .put(
+        "record",
+        new ExpressionResolverTestObjects.RecordValues(
+          "Ada",
+          37,
+          true,
+          new ExpressionResolverTestObjects.Person("Byron")
+        )
+      );
+    assertThat(restrictedInterpreter.render("{{ record.child }}")).isEmpty();
+    assertThat(rejectedTypes).contains(ExpressionResolverTestObjects.Person.class);
   }
 
   @Test
