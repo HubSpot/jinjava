@@ -5,6 +5,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.BaseInterpretingTest;
+import com.hubspot.jinjava.BaseJinjavaTest;
+import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.features.BuiltInFeatures;
+import com.hubspot.jinjava.features.FeatureConfig;
+import com.hubspot.jinjava.features.FeatureStrategies;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import org.junit.Before;
@@ -13,10 +19,27 @@ import org.junit.Test;
 public class TruncateHtmlFilterTest extends BaseInterpretingTest {
 
   TruncateHtmlFilter filter;
+  JinjavaInterpreter preserveVoidInterpreter;
 
   @Before
   public void setup() {
     filter = new TruncateHtmlFilter();
+    preserveVoidInterpreter =
+      new Jinjava(
+        BaseJinjavaTest
+          .newConfigBuilder()
+          .withFeatureConfig(
+            FeatureConfig
+              .newBuilder()
+              .add(
+                BuiltInFeatures.PRESERVE_VOID_IN_TRUNCATE_HTML,
+                FeatureStrategies.ACTIVE
+              )
+              .build()
+          )
+          .build()
+      )
+        .newInterpreter();
   }
 
   @Test
@@ -82,7 +105,7 @@ public class TruncateHtmlFilterTest extends BaseInterpretingTest {
   public void itPreservesVoidElementsWhenContentIsUnderTheLimit() {
     String result = (String) filter.filter(
       "<p>Hey,<br>Great to hear!</p><p><img src=\"a.png\"></p>",
-      interpreter,
+      preserveVoidInterpreter,
       "255"
     );
     assertThat(result)
@@ -93,7 +116,7 @@ public class TruncateHtmlFilterTest extends BaseInterpretingTest {
   public void itPreservesVoidElementsBeforeTheTruncationPoint() {
     String result = (String) filter.filter(
       "<p>Hello<br>world, this is long text</p>",
-      interpreter,
+      preserveVoidInterpreter,
       "10",
       "...",
       "true"
@@ -105,7 +128,7 @@ public class TruncateHtmlFilterTest extends BaseInterpretingTest {
   public void itRemovesVoidElementsAfterTheTruncationPoint() {
     String result = (String) filter.filter(
       "<p>Hello world</p><p>more<br>text</p><img src=\"a.png\">",
-      interpreter,
+      preserveVoidInterpreter,
       "5",
       "...",
       "true"
@@ -117,7 +140,7 @@ public class TruncateHtmlFilterTest extends BaseInterpretingTest {
   public void itPreservesSelfClosingBrTagsBeforeTheTruncationPoint() {
     String result = (String) filter.filter(
       "<p>Hey,<br/>Great to hear!</p>",
-      interpreter,
+      preserveVoidInterpreter,
       "255"
     );
     assertThat(result).isEqualTo("<p>Hey,\n <br>\n Great to hear!</p>");
@@ -127,7 +150,7 @@ public class TruncateHtmlFilterTest extends BaseInterpretingTest {
   public void itRemovesSelfClosingBrTagsAfterTheTruncationPoint() {
     String result = (String) filter.filter(
       "<p>Hello world<br/>more text</p><br/>",
-      interpreter,
+      preserveVoidInterpreter,
       "5",
       "...",
       "true"
@@ -139,7 +162,7 @@ public class TruncateHtmlFilterTest extends BaseInterpretingTest {
   public void itPreservesVoidElementsWithExplicitClosingTagsBeforeTheTruncationPoint() {
     String result = (String) filter.filter(
       "<p><img src=\"a.png\" width=\"10\"></img>Great to hear!</p>",
-      interpreter,
+      preserveVoidInterpreter,
       "255"
     );
     assertThat(result).isEqualTo("<p><img src=\"a.png\" width=\"10\">Great to hear!</p>");
@@ -149,12 +172,34 @@ public class TruncateHtmlFilterTest extends BaseInterpretingTest {
   public void itRemovesVoidElementsWithExplicitClosingTagsAfterTheTruncationPoint() {
     String result = (String) filter.filter(
       "<p>Hello world</p><p><img src=\"a.png\" width=\"10\"></img></p>",
-      interpreter,
+      preserveVoidInterpreter,
       "5",
       "...",
       "true"
     );
     assertThat(result).isEqualTo("<p>Hello...</p>");
+  }
+
+  @Test
+  public void itRemovesVoidElementsWhenFeatureIsInactive() {
+    String result = (String) filter.filter(
+      "<p>Hey,<br>Great to hear!</p><p><img src=\"a.png\"></p>",
+      interpreter,
+      "255"
+    );
+    assertThat(result).isEqualTo("<p>Hey,Great to hear!</p>");
+  }
+
+  @Test
+  public void itRemovesVoidElementsBeforeTheTruncationPointWhenFeatureIsInactive() {
+    String result = (String) filter.filter(
+      "<p>Hello<br>world, this is long text</p>",
+      interpreter,
+      "10",
+      "...",
+      "true"
+    );
+    assertThat(result).isEqualTo("<p>Helloworld...</p>");
   }
 
   private static String fixture(String name) {
