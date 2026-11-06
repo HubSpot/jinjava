@@ -3,6 +3,7 @@ package com.hubspot.jinjava.lib.filter;
 import com.hubspot.jinjava.doc.annotations.JinjavaDoc;
 import com.hubspot.jinjava.doc.annotations.JinjavaParam;
 import com.hubspot.jinjava.doc.annotations.JinjavaSnippet;
+import com.hubspot.jinjava.features.BuiltInFeatures;
 import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.TemplateError;
@@ -144,11 +145,20 @@ public class TruncateHtmlFilter implements AdvancedFilter {
         killwords = BooleanUtils.toBoolean(args[2]);
       }
 
+      boolean preserveVoidElements = interpreter
+        .getConfig()
+        .getFeatures()
+        .isActive(
+          BuiltInFeatures.PRESERVE_VOID_IN_TRUNCATE_HTML,
+          interpreter.getContext()
+        );
+
       Document dom = Jsoup.parseBodyFragment((String) var);
       ContentTruncatingNodeVisitor visitor = new ContentTruncatingNodeVisitor(
         length,
         ends,
-        killwords
+        killwords,
+        preserveVoidElements
       );
       dom.select("body").traverse(visitor);
       dom.select("." + DELETE_MARKER_CLASS).remove();
@@ -165,13 +175,20 @@ public class TruncateHtmlFilter implements AdvancedFilter {
     private int textLen;
     private final String ending;
     private final boolean killwords;
+    private final boolean preserveVoidElements;
     private final Deque<Integer> keptVoidElementsAtEntry = new ArrayDeque<>();
     private int keptVoidElements;
 
-    ContentTruncatingNodeVisitor(int maxTextLen, String ending, boolean killwords) {
+    ContentTruncatingNodeVisitor(
+      int maxTextLen,
+      String ending,
+      boolean killwords,
+      boolean preserveVoidElements
+    ) {
       this.maxTextLen = maxTextLen;
       this.ending = ending;
       this.killwords = killwords;
+      this.preserveVoidElements = preserveVoidElements;
     }
 
     @Override
@@ -193,7 +210,7 @@ public class TruncateHtmlFilter implements AdvancedFilter {
         } else {
           textLen += textContent.length();
         }
-      } else if (node instanceof Element el) {
+      } else if (preserveVoidElements && node instanceof Element el) {
         keptVoidElementsAtEntry.push(keptVoidElements);
         if (isVoidElement(el)) {
           if (textLen >= maxTextLen) {
@@ -207,15 +224,19 @@ public class TruncateHtmlFilter implements AdvancedFilter {
 
     @Override
     public void tail(Node node, int depth) {
-      if (node instanceof Element el) {
-        boolean containsKeptVoidElement =
-          keptVoidElements > keptVoidElementsAtEntry.pop();
-        if (
-          !isVoidElement(el) && !containsKeptVoidElement && StringUtils.isBlank(el.text())
-        ) {
-          el.addClass(DELETE_MARKER_CLASS);
-        }
+      if (node instanceof Element el && shouldRemoveOnExit(el)) {
+        el.addClass(DELETE_MARKER_CLASS);
       }
+    }
+
+    private boolean shouldRemoveOnExit(Element el) {
+      if (!preserveVoidElements) {
+        return StringUtils.isBlank(el.text());
+      }
+      boolean containsKeptVoidElement = keptVoidElements > keptVoidElementsAtEntry.pop();
+      return (
+        !isVoidElement(el) && !containsKeptVoidElement && StringUtils.isBlank(el.text())
+      );
     }
 
     private static boolean isVoidElement(Element el) {
