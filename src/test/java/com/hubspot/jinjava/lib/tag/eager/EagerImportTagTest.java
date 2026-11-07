@@ -248,6 +248,29 @@ public class EagerImportTagTest extends ImportTagTest {
   }
 
   @Test
+  public void itDoesNotDeferMetaContextVariablesDuringDeferredImport() {
+    JinjavaInterpreter child = getChildInterpreter(interpreter, "");
+    Map<String, Object> childBindings = new HashMap<>();
+    childBindings.put(Context.IMPORT_RESOURCE_PATH_KEY, TEMPLATE_FILE);
+    childBindings.put("request", DeferredValue.instance("the real request"));
+
+    ImportTag.handleDeferredNodesDuringImport(
+      interpreter.parse(""),
+      "",
+      childBindings,
+      child,
+      interpreter
+    );
+
+    assertThat(interpreter.getContext().get(Context.IMPORT_RESOURCE_PATH_KEY)).isNull();
+    assertThat(interpreter.getContext().get("request")).isInstanceOf(DeferredValue.class);
+    assertThat(
+      ((DeferredValue) interpreter.getContext().get("request")).getOriginalValue()
+    )
+      .isEqualTo("the real request");
+  }
+
+  @Test
   @SuppressWarnings("unchecked")
   public void itHandlesMultiLayerSomeAliased() {
     String child3Alias = "triple_child";
