@@ -36,7 +36,7 @@ public class IsInExpTest extends CollectionExpTest {
     if (args == null || args.length == 0) {
       return false;
     }
-    if (!isIterable(args[0])) {
+    if (!(args[0] instanceof CharSequence) && !isIterable(args[0])) {
       throw new InvalidArgumentException(
         interpreter,
         this,
