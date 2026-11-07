@@ -608,11 +608,14 @@ public class StringTokenScanner extends AbstractIterator<Token> {
       (t instanceof TagToken || t instanceof NoteToken) &&
       config.isTrimBlocks() &&
       currPost < length &&
-      is[currPost] == '\n'
+      (is[currPost] == '\n' ||
+        (is[currPost] == '\r' && currPost + 1 < length && is[currPost + 1] == '\n'))
     ) {
-      lastNewlinePos = currPost + 1;
-      ++currPost;
-      ++tokenStart;
+      int newlineLength = is[currPost] == '\r' ? 2 : 1;
+      currPost += newlineLength;
+      tokenStart += newlineLength;
+      lastNewlinePos = currPost;
+      ++currLine;
     }
 
     if (t instanceof TagToken) {
