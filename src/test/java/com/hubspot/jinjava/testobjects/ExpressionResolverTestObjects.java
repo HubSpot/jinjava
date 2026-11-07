@@ -12,6 +12,10 @@ import java.util.Set;
 
 public class ExpressionResolverTestObjects {
 
+  public record Person(String name) {}
+
+  public record RecordValues(String firstName, int age, boolean active, Person child) {}
+
   public static class MyCustomList<T> extends ForwardingList<T> implements PyWrapper {
 
     private final List<T> list;
