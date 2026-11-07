@@ -18,6 +18,7 @@ import com.hubspot.jinjava.interpret.RenderResult;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
+import com.hubspot.jinjava.objects.SafeString;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import com.hubspot.jinjava.testobjects.ExpressionResolverTestObjects;
 import java.math.BigDecimal;
@@ -27,6 +28,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
+import javax.el.CompositeELResolver;
+import javax.el.ELContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -100,6 +103,90 @@ public class ExpressionResolverTest {
     Object val = interpreter.resolveELExpression("(i_am_seven * 2 + 1)/3", -1);
     assertThat(val).isEqualTo(5.0);
     assertThat(interpreter.getContext().wasValueResolved("i_am_seven")).isTrue();
+  }
+
+  @Test
+  public void itResolvesStringIndex() {
+    RenderResult result = jinjava.renderForResult(
+      "{{ x[0] }}",
+      ImmutableMap.of("x", "stuff")
+    );
+    assertThat(result.getOutput()).isEqualTo("s");
+    assertThat(result.getErrors()).isEmpty();
+  }
+
+  @Test
+  public void itResolvesStringIndicesInExpressions() {
+    RenderResult result = jinjava.renderForResult(
+      "{{ 'stuff'[1] }}|{{ x[-1] }}|{{ x['0']|upper }}|{{ x[-5] }}|{{ x[index] }}",
+      ImmutableMap.of("x", "stuff", "index", 2)
+    );
+    assertThat(result.getOutput()).isEqualTo("t|f|S|s|u");
+    assertThat(result.getErrors()).isEmpty();
+  }
+
+  @Test
+  public void itResolvesMissingStringIndicesWithoutUnknownPropertyErrors() {
+    RenderResult result = jinjava.renderForResult(
+      "{{ x[5] }}{{ x[-6] }}{{ ''[0] }}{{ x['999999999999999999999999'] }}",
+      ImmutableMap.of("x", "stuff")
+    );
+    assertThat(result.getOutput()).isEmpty();
+    assertThat(result.getErrors()).isEmpty();
+  }
+
+  @Test
+  public void itPreservesStringMethodsAndSlices() {
+    RenderResult result = jinjava.renderForResult(
+      "{{ x.isEmpty() }}|{{ x.length() }}|{{ x[0:1] }}",
+      ImmutableMap.of("x", "stuff")
+    );
+    assertThat(result.getOutput()).isEqualTo("false|5|s");
+    assertThat(result.getErrors()).isEmpty();
+  }
+
+  @Test
+  public void itPreservesOtherIndexedValuesAndSafeStringProperties() {
+    RenderResult result = jinjava.renderForResult(
+      "{{ list[0] }}|{{ map[0] }}|{{ array[0] }}|{{ safe.value }}",
+      ImmutableMap.of(
+        "list",
+        Lists.newArrayList("list"),
+        "map",
+        ImmutableMap.of("0", "map"),
+        "array",
+        new String[] { "array" },
+        "safe",
+        new SafeString("safe")
+      )
+    );
+    assertThat(result.getOutput()).isEqualTo("list|map|array|safe");
+    assertThat(result.getErrors()).isEmpty();
+  }
+
+  @Test
+  public void itUsesCustomResolversForStringIndices() {
+    Jinjava customJinjava = new Jinjava(
+      BaseJinjavaTest
+        .newConfigBuilder()
+        .withElResolver(
+          new CompositeELResolver() {
+            @Override
+            public Object getValue(ELContext elContext, Object base, Object property) {
+              if (base instanceof String && "0".equals(property)) {
+                elContext.setPropertyResolved(true);
+                return "custom";
+              }
+              return super.getValue(elContext, base, property);
+            }
+          }
+        )
+        .build()
+    );
+    JinjavaInterpreter customInterpreter = customJinjava.newInterpreter();
+    customInterpreter.getContext().put("x", "stuff");
+    assertThat(customInterpreter.render("{{ x[0] }}")).isEqualTo("custom");
+    assertThat(customInterpreter.getErrors()).isEmpty();
   }
 
   @Test
