@@ -18,6 +18,7 @@ import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import com.hubspot.jinjava.interpret.RenderResult;
 import com.hubspot.jinjava.interpret.TemplateError;
+import com.hubspot.jinjava.interpret.UnknownTokenException;
 import com.hubspot.jinjava.lib.fn.ELFunctionDefinition;
 import com.hubspot.jinjava.objects.date.PyishDate;
 import com.hubspot.jinjava.tree.Node;
@@ -25,6 +26,7 @@ import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.TreeParser;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -62,6 +64,188 @@ public class ForTagTest extends BaseInterpretingTest {
     } catch (NoSuchMethodException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  @Test
+  public void itRendersElseForAnEmptyLoop() {
+    assertThat(
+      interpreter.render("{% for item in [] %}{{ item }}{% else %}EMPTY{% endfor %}")
+    )
+      .isEqualTo("EMPTY");
+    assertThat(interpreter.getErrors()).isEmpty();
+  }
+
+  @Test
+  public void itSkipsElseForANonEmptyLoop() {
+    assertThat(
+      interpreter.render(
+        "{% for item in ['a', 'b'] %}{{ item }}{% else %}EMPTY{% endfor %}"
+      )
+    )
+      .isEqualTo("ab");
+    assertThat(interpreter.getErrors()).isEmpty();
+  }
+
+  @Test
+  public void itRendersElseForEmptyCollectionsAndNull() {
+    for (Object values : Arrays.asList(
+      null,
+      List.of(),
+      Map.of(),
+      new String[0],
+      List.of().iterator()
+    )) {
+      context.put("values", values);
+      assertThat(
+        interpreter.render("{% for item in values %}BODY{% else %}EMPTY{% endfor %}")
+      )
+        .isEqualTo("EMPTY");
+    }
+    assertThat(
+      interpreter.render(
+        "{% for item in ['a']|select('equalto', 'b') %}BODY{% else %}EMPTY{% endfor %}"
+      )
+    )
+      .isEqualTo("EMPTY");
+    assertThat(interpreter.getErrors()).isEmpty();
+  }
+
+  @Test
+  public void itHandlesForElseWithArraysIteratorsAndMultipleLoopVariables() {
+    for (Object values : List.of(
+      new String[] { "a", "b" },
+      List.of("a", "b").iterator()
+    )) {
+      TagNode loop = (TagNode) new TreeParser(
+        interpreter,
+        "{% for item in values %}{{ item }}{% else %}EMPTY{% endfor %}"
+      )
+        .buildTree()
+        .getChildren()
+        .get(0);
+      assertThat(
+        new ForTag().renderForCollection(loop, interpreter, List.of("item"), values)
+      )
+        .isEqualTo("ab");
+    }
+    assertThat(
+      interpreter.render(
+        "{% for key, value in {'a': 1}.items() %}{{ key }}{{ value }}{% else %}EMPTY{% endfor %}"
+      )
+    )
+      .isEqualTo("a1");
+    assertThat(
+      interpreter.render(
+        "{% for key, value in {}.items() %}BODY{% else %}EMPTY{% endfor %}"
+      )
+    )
+      .isEqualTo("EMPTY");
+    assertThat(interpreter.getErrors()).isEmpty();
+  }
+
+  @Test
+  public void itKeepsNestedElseBlocksSeparate() {
+    assertThat(
+      interpreter.render(
+        "{% for item in [0, 1] %}{% if item %}Y{% else %}N{% endif %}" +
+        "{% for inner in [] %}INNER{% else %}E{% endfor %}" +
+        "{% else %}OUTER{% endfor %}"
+      )
+    )
+      .isEqualTo("NEYE");
+    assertThat(interpreter.getErrors()).isEmpty();
+  }
+
+  @Test
+  public void itDoesNotRunElseAfterBreakOrContinue() {
+    for (String control : List.of("break", "continue")) {
+      assertThat(
+        interpreter.render(
+          "{% for item in [1, 2] %}{% " + control + " %}BODY{% else %}EMPTY{% endfor %}"
+        )
+      )
+        .isEmpty();
+    }
+    assertThat(interpreter.getErrors()).isEmpty();
+  }
+
+  @Test
+  public void itKeepsElseAssignmentsLocalAndUsesOuterLoopVariables() {
+    assertThat(
+      interpreter.render(
+        "{% set item = 'outer' %}{% set value = 'before' %}" +
+        "{% for outer in [1, 2] %}" +
+        "{% for item in [] %}BODY{% else %}{{ loop.index }}{{ item }}{% set value = 'inside' %}{% endfor %}" +
+        "{% endfor %}{{ value }}"
+      )
+    )
+      .isEqualTo("1outer2outerbefore");
+    assertThat(interpreter.getErrors()).isEmpty();
+  }
+
+  @Test
+  public void itSkipsSideEffectsAndErrorsInTheInactiveBranch() {
+    assertThat(
+      interpreter.render(
+        "{% set values = [] %}{% for item in [] %}{% do values.append('body') %}{{ badBody( }}" +
+        "{% else %}{% do values.append('else') %}{% endfor %}{{ values|join(',') }}"
+      )
+    )
+      .isEqualTo("else");
+    assertThat(
+      interpreter.render(
+        "{% set values = [] %}{% for item in [1] %}{% do values.append('body') %}" +
+        "{% else %}{% do values.append('else') %}{{ badElse( }}{% endfor %}{{ values|join(',') }}"
+      )
+    )
+      .isEqualTo("body");
+    assertThat(interpreter.getErrors()).isEmpty();
+  }
+
+  @Test
+  public void itPreservesElseWhitespaceAndAutoescaping() {
+    assertThat(
+      interpreter.render(
+        "A {%- for item in [] -%} BODY {%- else -%} EMPTY {%- endfor -%} Z"
+      )
+    )
+      .isEqualTo("AEMPTYZ");
+    assertThat(
+      interpreter.render(
+        "{% autoescape true %}{% for item in [] %}BODY{% else %}{{ '<b>' }}{% endfor %}{% endautoescape %}"
+      )
+    )
+      .isEqualTo("&lt;b&gt;");
+    assertThat(interpreter.getErrors()).isEmpty();
+  }
+
+  @Test
+  public void itRetainsUnknownVariableHandlingForForElse() {
+    assertThat(
+      interpreter.render("{% for item in missing %}BODY{% else %}EMPTY{% endfor %}")
+    )
+      .isEqualTo("EMPTY");
+    JinjavaInterpreter strict = new Jinjava(
+      BaseJinjavaTest.newConfigBuilder().withFailOnUnknownTokens(true).build()
+    )
+      .newInterpreter();
+    assertThatThrownBy(() ->
+        strict.render("{% for item in missing %}BODY{% else %}EMPTY{% endfor %}")
+      )
+      .isInstanceOf(UnknownTokenException.class);
+  }
+
+  @Test
+  public void itLimitsElseOutput() {
+    JinjavaInterpreter limited = new Jinjava(
+      BaseJinjavaTest.newConfigBuilder().withMaxOutputSize(5).build()
+    )
+      .newInterpreter();
+    assertThat(limited.render("{% for item in [] %}BODY{% else %}12345{% endfor %}"))
+      .isEqualTo("12345");
+    assertThat(limited.getErrors()).isEmpty();
+    limited.render("{% for item in [] %}BODY{% else %}123456{% endfor %}");
+    assertThat(limited.getErrors()).isNotEmpty();
   }
 
   @Test

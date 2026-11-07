@@ -58,7 +58,7 @@ import org.apache.commons.lang3.tuple.Pair;
  * @author anysome
  */
 @JinjavaDoc(
-  value = "Outputs the inner content for each item in the given iterable",
+  value = "Outputs the inner content for each item in the given iterable, or the else block if the iterable is empty",
   params = {
     @JinjavaParam(
       value = "items_to_iterate",
@@ -156,6 +156,19 @@ public class ForTag implements Tag {
     Object collection
   ) {
     ForLoop loop = ObjectIterator.getLoop(collection);
+    boolean empty = !loop.hasNext();
+    List<Node> children = tagNode.getChildren();
+    int elseIndex = children.size();
+    for (int i = 0; i < children.size(); i++) {
+      if (
+        children.get(i) instanceof TagNode &&
+        ElseTag.TAG_NAME.equals(children.get(i).getName())
+      ) {
+        elseIndex = i;
+        break;
+      }
+    }
+    String result;
 
     try (InterpreterScopeClosable c = interpreter.enterScope()) {
       if (interpreter.isValidationMode() && !loop.hasNext()) {
@@ -257,7 +270,7 @@ public class ForTag implements Tag {
           }
         }
 
-        for (Node node : tagNode.getChildren()) {
+        for (Node node : children.subList(0, elseIndex)) {
           if (interpreter.getContext().isValidationMode()) {
             node.render(interpreter);
           } else {
@@ -284,8 +297,35 @@ public class ForTag implements Tag {
           throw new DeferredValueException(TOO_LARGE_EXCEPTION_MESSAGE);
         }
       }
-      return checkLoopVariable(interpreter, buff);
+      result = checkLoopVariable(interpreter, buff);
     }
+    if (elseIndex < children.size() && (empty || interpreter.isValidationMode())) {
+      try (InterpreterScopeClosable c = interpreter.enterScope()) {
+        if (!empty) {
+          interpreter.getContext().setValidationMode(true);
+        }
+        LengthLimitingStringBuilder buff = new LengthLimitingStringBuilder(
+          interpreter.getConfig().getMaxOutputSize()
+        );
+        for (Node node : children.subList(elseIndex + 1, children.size())) {
+          if (interpreter.getContext().isValidationMode()) {
+            node.render(interpreter);
+          } else {
+            try {
+              buff.append(node.render(interpreter));
+            } catch (OutputTooBigException e) {
+              if (interpreter.getConfig().getExecutionMode().useEagerParser()) {
+                throw new DeferredValueException(TOO_LARGE_EXCEPTION_MESSAGE);
+              }
+              interpreter.addError(TemplateError.fromOutputTooBigException(e));
+              break;
+            }
+          }
+        }
+        result += buff.toString();
+      }
+    }
+    return result;
   }
 
   private String checkLoopVariable(
