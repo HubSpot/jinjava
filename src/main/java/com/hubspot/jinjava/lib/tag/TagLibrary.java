@@ -47,7 +47,8 @@ public class TagLibrary extends SimpleLibrary<Tag> {
       RawTag.class,
       SetTag.class,
       UnlessTag.class,
-      DoTag.class
+      DoTag.class,
+      WithTag.class
     );
   }
 

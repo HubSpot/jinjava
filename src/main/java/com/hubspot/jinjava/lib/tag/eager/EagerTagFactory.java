@@ -24,6 +24,7 @@ import com.hubspot.jinjava.lib.tag.RawTag;
 import com.hubspot.jinjava.lib.tag.SetTag;
 import com.hubspot.jinjava.lib.tag.Tag;
 import com.hubspot.jinjava.lib.tag.UnlessTag;
+import com.hubspot.jinjava.lib.tag.WithTag;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -46,6 +47,7 @@ public class EagerTagFactory {
       .put(UnlessTag.class, EagerUnlessTag.class)
       .put(CallTag.class, EagerCallTag.class)
       .put(ContinueTag.class, EagerContinueTag.class)
+      .put(WithTag.class, EagerWithTag.class)
       .build();
   // These classes don't need an eager decorator.
   public static final Set<Class<? extends Tag>> TAG_CLASSES_TO_SKIP = ImmutableSet
