@@ -9,7 +9,9 @@
 
 Java-based template engine based on django template syntax, adapted to render jinja templates (at least the subset of jinja in use in HubSpot content). Currently used in production to render thousands of websites with hundreds of millions of page views per month on the [HubSpot CMS](http://www.hubspot.com/products/sites).
 
-*Note*: Requires Java >= 8. Originally forked from [jangod](https://code.google.com/p/jangod/).
+**Upgrading from 2.x?** See the [Migration Guide](docs/migration-2.x-to-3.0.md).
+
+*Note*: Requires Java >= 17. Originally forked from [jangod](https://code.google.com/p/jangod/).
 
 Get it:
 -------
@@ -24,13 +26,22 @@ Get it:
 
 where LATEST_VERSION is the [latest version from CHANGES](CHANGES.md).
 
+or if you're stuck on java 11:
+```xml
+  <dependency>
+    <groupId>com.hubspot.jinjava</groupId>
+    <artifactId>jinjava</artifactId>
+    <version>2.7.3</version>
+  </dependency>
+```
+
 or if you're stuck on java 7:
 ```xml
   <dependency>
     <groupId>com.hubspot.jinjava</groupId>
     <artifactId>jinjava</artifactId>
     <version>2.0.11-java7</version>
-</dependency>
+  </dependency>
 ```
 
 
