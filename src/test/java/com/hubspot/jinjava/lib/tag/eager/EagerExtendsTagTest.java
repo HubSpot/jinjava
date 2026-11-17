@@ -125,6 +125,21 @@ public class EagerExtendsTagTest extends ExtendsTagTest {
   }
 
   @Test
+  public void itDefersSetInBaseBeforeBlock() {
+    expectedTemplateInterpreter.assertExpectedOutputNonIdempotent(
+      "defers-set-in-base-before-block"
+    );
+  }
+
+  @Test
+  public void itDefersSetInBaseBeforeBlockSecondPass() {
+    context.put("deferred", "Resolved now");
+    expectedTemplateInterpreter.assertExpectedOutput(
+      "defers-set-in-base-before-block.expected"
+    );
+  }
+
+  @Test
   public void itThrowsWhenDeferredExtendsTag() {
     interpreter.render(
       expectedTemplateInterpreter.getFixtureTemplate("throws-when-deferred-extends-tag")
