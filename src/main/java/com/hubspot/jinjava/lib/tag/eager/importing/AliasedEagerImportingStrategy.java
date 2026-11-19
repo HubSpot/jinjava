@@ -25,6 +25,7 @@ public class AliasedEagerImportingStrategy implements EagerImportingStrategy {
 
   private final ImportingData importingData;
   private final String currentImportAlias;
+  private final Optional<String> maybeParentImportAlias;
   private final String fullImportAlias;
 
   @VisibleForTesting
@@ -34,10 +35,8 @@ public class AliasedEagerImportingStrategy implements EagerImportingStrategy {
   ) {
     this.importingData = importingData;
     this.currentImportAlias = currentImportAlias;
-    Optional<String> maybeParentImportAlias = importingData
-      .getOriginalInterpreter()
-      .getContext()
-      .getImportResourceAlias();
+    maybeParentImportAlias =
+      importingData.getOriginalInterpreter().getContext().getImportResourceAlias();
     if (maybeParentImportAlias.isPresent()) {
       fullImportAlias =
         String.format("%s.%s", maybeParentImportAlias.get(), currentImportAlias);
@@ -68,7 +67,7 @@ public class AliasedEagerImportingStrategy implements EagerImportingStrategy {
   public void setup(JinjavaInterpreter child) {
     child.getContext().getScope().put(Context.IMPORT_RESOURCE_ALIAS_KEY, fullImportAlias);
     child.getContext().put(Context.IMPORT_RESOURCE_ALIAS_KEY, fullImportAlias);
-    constructFullAliasPathMap(currentImportAlias, child);
+    constructFullAliasPathMap(child);
     getMapForCurrentContextAlias(currentImportAlias, child);
     importingData
       .getOriginalInterpreter()
@@ -138,15 +137,10 @@ public class AliasedEagerImportingStrategy implements EagerImportingStrategy {
   }
 
   @SuppressWarnings("unchecked")
-  private static void constructFullAliasPathMap(
-    String currentImportAlias,
-    JinjavaInterpreter child
-  ) {
-    String fullImportAlias = child
-      .getContext()
-      .getImportResourceAlias()
-      .orElse(currentImportAlias);
-    String[] allAliases = fullImportAlias.split("\\.");
+  private void constructFullAliasPathMap(JinjavaInterpreter child) {
+    String[] allAliases = isParentImportInProgress(child)
+      ? fullImportAlias.split("\\.")
+      : new String[] { currentImportAlias };
     Map<String, Object> currentMap = child.getContext().getParent();
     for (int i = 0; i < allAliases.length - 1; i++) {
       Object maybeNextMap = currentMap.get(allAliases[i]);
@@ -168,6 +162,13 @@ public class AliasedEagerImportingStrategy implements EagerImportingStrategy {
         ? DeferredValue.instance(new PyMap(new HashMap<>()))
         : new PyMap(new HashMap<>())
     );
+  }
+
+  private boolean isParentImportInProgress(JinjavaInterpreter child) {
+    return maybeParentImportAlias
+      .map(MetaContextVariables::getTemporaryImportAlias)
+      .map(child.getContext()::containsKey)
+      .orElse(false);
   }
 
   @SuppressWarnings("unchecked")
