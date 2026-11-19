@@ -530,6 +530,26 @@ public class EagerImportTagTest extends ImportTagTest {
   }
 
   @Test
+  public void itImportsInsideMacroWhenLocalVariableShadowsParentAlias() {
+    setupResourceLocator();
+    String result = interpreter.render(
+      "{% import 'shadowed-alias-string.jinja' as outer %}{{ outer.render() }}"
+    );
+    assertThat(interpreter.getErrors()).isEmpty();
+    assertThat(result.trim()).isEqualTo("B_B_B-shadowed");
+  }
+
+  @Test
+  public void itDoesNotAddImportAliasToLocalDictShadowingParentAlias() {
+    setupResourceLocator();
+    String result = interpreter.render(
+      "{% import 'shadowed-alias-dict.jinja' as outer %}{{ outer.render() }}"
+    );
+    assertThat(interpreter.getErrors()).isEmpty();
+    assertThat(result.trim()).isEqualTo("B_B_B-{'name': 'local'}");
+  }
+
+  @Test
   public void itKeepsDeferredImportAliasesInsideOwnScope() {
     setupResourceLocator();
     String result = interpreter.render(

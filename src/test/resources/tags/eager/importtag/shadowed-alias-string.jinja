@@ -1,0 +1,3 @@
+{% macro render() -%}
+{% set outer = 'shadowed' %}{% import 'printer-b.jinja' as printer %}{{ printer.print() }}-{{ outer }}
+{%- endmacro %}
