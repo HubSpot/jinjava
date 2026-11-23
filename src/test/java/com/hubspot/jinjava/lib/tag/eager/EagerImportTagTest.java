@@ -550,6 +550,16 @@ public class EagerImportTagTest extends ImportTagTest {
   }
 
   @Test
+  public void itImportsTopLevelAliasOfFileImportedInsideMacroFromAliasedImport() {
+    setupResourceLocator();
+    String result = interpreter.render(
+      "{% import 'nested-top-import-outer.jinja' as outer %}{{ outer.render() }}"
+    );
+    assertThat(interpreter.getErrors()).isEmpty();
+    assertThat(result.trim()).isEqualTo("B_B_B");
+  }
+
+  @Test
   public void itKeepsDeferredImportAliasesInsideOwnScope() {
     setupResourceLocator();
     String result = interpreter.render(

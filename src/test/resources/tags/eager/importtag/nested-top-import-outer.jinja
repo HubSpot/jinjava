@@ -1,0 +1,3 @@
+{% macro render() -%}
+{% import 'nested-top-import-middle.jinja' as middle %}{{ middle.go() }}
+{%- endmacro %}
