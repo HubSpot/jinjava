@@ -4,6 +4,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 import com.hubspot.jinjava.BaseInterpretingTest;
+import com.hubspot.jinjava.interpret.InvalidArgumentException;
 import com.hubspot.jinjava.objects.SafeString;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -456,5 +457,102 @@ public class IpAddrFilterTest extends BaseInterpretingTest {
     List<Object> expectedAddresses = Arrays.asList("192.168.32.0/24", "fe80::100/10");
     assertThat(ipAddrFilter.filter(inputAddresses, interpreter, "private"))
       .isEqualTo(expectedAddresses);
+  }
+
+  @Test
+  public void itSelectsIpv4AddressesByIndex() {
+    assertThat(ipAddrFilter.filter("192.168.10.42/24", interpreter, "0"))
+      .isEqualTo("192.168.10.0/24");
+    assertThat(ipAddrFilter.filter("192.168.10.0/24", interpreter, "1"))
+      .isEqualTo("192.168.10.1/24");
+    assertThat(ipAddrFilter.filter("192.168.10.0/24", interpreter, "-1"))
+      .isEqualTo("192.168.10.255/24");
+    assertThat(ipAddrFilter.filter("0.0.0.0/0", interpreter, "4294967295"))
+      .isEqualTo("255.255.255.255/0");
+    assertThat(ipv4Filter.filter("255.255.255.254/31", interpreter, "1"))
+      .isEqualTo("255.255.255.255/31");
+    assertThat(ipAddrFilter.filter("192.168.10.1/32", interpreter, "0"))
+      .isEqualTo("192.168.10.1/32");
+    assertThat(ipAddrFilter.filter("192.168.10.1", interpreter, "1"))
+      .isEqualTo("192.168.10.1");
+  }
+
+  @Test
+  public void itSelectsIpv6AddressesWithoutEnumeratingTheSubnet() {
+    assertThat(ipAddrFilter.filter("2001:db8::42/64", interpreter, "0"))
+      .isEqualTo("2001:db8::/64");
+    assertThat(ipv6Filter.filter("2001:db8::/64", interpreter, "1"))
+      .isEqualTo("2001:db8::1/64");
+    assertThat(ipAddrFilter.filter("2001:db8::/64", interpreter, "-1"))
+      .isEqualTo("2001:db8::ffff:ffff:ffff:ffff/64");
+    assertThat(ipAddrFilter.filter("::/0", interpreter, "-1"))
+      .isEqualTo("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff/0");
+    assertThat(ipAddrFilter.filter("2001:db8::/127", interpreter, "1"))
+      .isEqualTo("2001:db8::1/127");
+    assertThat(ipAddrFilter.filter("::1/128", interpreter, "-1")).isEqualTo("::1/128");
+    assertThat(ipAddrFilter.filter("::1/128", interpreter, "1")).isEqualTo("::1/128");
+  }
+
+  @Test
+  public void itRejectsOutOfRangeIndexes() {
+    for (String index : Arrays.asList(
+      "256",
+      "-257",
+      "99999999999999999999999999999999999999999"
+    )) {
+      assertThat(ipAddrFilter.filter("192.168.10.0/24", interpreter, index))
+        .isEqualTo(false);
+    }
+    assertThat(ipAddrFilter.filter("2001:db8::/127", interpreter, "2")).isEqualTo(false);
+    assertThat(
+      ipAddrFilter.filter("::/0", interpreter, "340282366920938463463374607431768211456")
+    )
+      .isEqualTo(false);
+  }
+
+  @Test
+  public void itReturnsWildcardMasks() {
+    assertThat(ipAddrFilter.filter("192.168.10.42/24", interpreter, "wildcard"))
+      .isEqualTo("0.0.0.255");
+    assertThat(ipv4Filter.filter("192.168.10.0/20", interpreter, "wildcard"))
+      .isEqualTo("0.0.15.255");
+    assertThat(ipAddrFilter.filter("0.0.0.0/0", interpreter, "wildcard"))
+      .isEqualTo("255.255.255.255");
+    assertThat(ipAddrFilter.filter("192.168.10.1/32", interpreter, "wildcard"))
+      .isEqualTo("0.0.0.0");
+    assertThat(ipv6Filter.filter("2001:db8::/64", interpreter, "wildcard"))
+      .isEqualTo("::ffff:ffff:ffff:ffff");
+    assertThat(ipAddrFilter.filter("::1/128", interpreter, "wildcard")).isEqualTo("::");
+    assertThat(ipAddrFilter.filter("192.168.10.1", interpreter, "wildcard"))
+      .isEqualTo("0.0.0.0");
+    assertThat(ipAddrFilter.filter("::1", interpreter, "wildcard")).isEqualTo("::");
+  }
+
+  @Test
+  public void itValidatesCidrForIndexesAndWildcardMasks() {
+    for (String query : Arrays.asList("0", "wildcard")) {
+      assertThatThrownBy(() -> ipAddrFilter.filter("192.168.10.1/33", interpreter, query))
+        .isInstanceOf(InvalidArgumentException.class);
+      assertThatThrownBy(() -> ipAddrFilter.filter("2001:db8::/129", interpreter, query))
+        .isInstanceOf(InvalidArgumentException.class);
+    }
+  }
+
+  @Test
+  public void itSupportsIndexesAndWildcardMasksInTemplatesAndLists() {
+    assertThat(
+      interpreter.render(
+        "{{ '192.168.10.0/24' | ipaddr(1) | ipaddr('address') }} {{ '192.168.10.0/24' | ipaddr('wildcard') }}"
+      )
+    )
+      .isEqualTo("192.168.10.1 0.0.0.255");
+    assertThat(
+      ipAddrFilter.filter(
+        Arrays.asList("192.168.10.0/24", "invalid", "2001:db8::/64"),
+        interpreter,
+        "1"
+      )
+    )
+      .isEqualTo(Arrays.asList("192.168.10.1/24", "2001:db8::1/64"));
   }
 }
