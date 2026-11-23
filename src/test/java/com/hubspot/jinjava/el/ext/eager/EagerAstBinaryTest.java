@@ -104,4 +104,29 @@ public class EagerAstBinaryTest extends BaseInterpretingTest {
       assertThat(e.getDeferredEvalResult()).isEqualTo("deferred || 'val'");
     }
   }
+
+  @Test
+  public void itConcatenatesMapsWithPythonFormatting() {
+    assertThat(interpreter.render("{{ {'g': 'v'} ~ foo }}")).isEqualTo("{'g': 'v'}bar");
+  }
+
+  @Test
+  public void itDefersConcatenationWithAMapOnTheLeft() {
+    String partiallyRendered = interpreter.render("{{ {'g': 'v'} ~ deferred }}");
+    assertThat(partiallyRendered)
+      .isEqualToIgnoringWhitespace("{{ {'g': 'v'} ~ deferred }}");
+
+    interpreter.getContext().put("deferred", "bar");
+    assertThat(interpreter.render(partiallyRendered)).isEqualTo("{'g': 'v'}bar");
+  }
+
+  @Test
+  public void itDefersConcatenationWithAMapOnTheRight() {
+    String partiallyRendered = interpreter.render("{{ deferred ~ {'g': 'v'} }}");
+    assertThat(partiallyRendered)
+      .isEqualToIgnoringWhitespace("{{ deferred ~ {'g': 'v'} }}");
+
+    interpreter.getContext().put("deferred", "bar");
+    assertThat(interpreter.render(partiallyRendered)).isEqualTo("bar{'g': 'v'}");
+  }
 }
