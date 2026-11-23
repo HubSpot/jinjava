@@ -45,6 +45,13 @@ public class CallTagTest extends BaseInterpretingTest {
     }
   }
 
+  @Test
+  public void testCallerArgsFn() {
+    String result = interpreter.render(fixture("caller_args"));
+    System.out.println(result);
+    assertThat(result).isEqualTo(fixture("caller_args.expected"));
+  }
+
   private String fixture(String name) {
     try {
       return Resources.toString(
