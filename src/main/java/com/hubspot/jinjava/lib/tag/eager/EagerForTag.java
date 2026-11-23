@@ -7,7 +7,9 @@ import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.lib.tag.ElseTag;
 import com.hubspot.jinjava.lib.tag.ForTag;
+import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.TagNode;
 import com.hubspot.jinjava.tree.parse.TagToken;
 import com.hubspot.jinjava.util.EagerContextWatcher;
@@ -153,6 +155,13 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
       );
     }
 
+    for (int i = 0; i < tagNode.getChildren().size(); i++) {
+      Node child = tagNode.getChildren().get(i);
+      if (child instanceof TagNode && ElseTag.TAG_NAME.equals(child.getName())) {
+        return renderDeferredForElse(tagNode, interpreter, result, i);
+      }
+    }
+
     EagerExecutionResult firstRunResult = runLoopOnce(tagNode, interpreter, true);
     PrefixToPreserveState prefixToPreserveState = firstRunResult
       .getPrefixToPreserveState()
@@ -187,22 +196,122 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
     JinjavaInterpreter interpreter,
     boolean clearDeferredWords
   ) {
+    return runBranchOnce(
+      tagNode,
+      interpreter,
+      clearDeferredWords,
+      tagNode.getChildren(),
+      true
+    );
+  }
+
+  private String renderDeferredForElse(
+    TagNode tagNode,
+    JinjavaInterpreter interpreter,
+    LengthLimitingStringBuilder result,
+    int elseIndex
+  ) {
+    List<Node> body = tagNode.getChildren().subList(0, elseIndex);
+    List<Node> otherwise = tagNode
+      .getChildren()
+      .subList(elseIndex + 1, tagNode.getChildren().size());
+    EagerExecutionResult firstBody = runBranchOnce(
+      tagNode,
+      interpreter,
+      true,
+      body,
+      true
+    );
+    PrefixToPreserveState prefix = firstBody.getPrefixToPreserveState();
+    Set<String> bindingsToDefer = new HashSet<>(
+      EagerReconstructionUtils.resetSpeculativeBindings(interpreter, firstBody)
+    );
+    EagerExecutionResult firstElse = runBranchOnce(
+      tagNode,
+      interpreter,
+      true,
+      otherwise,
+      false
+    );
+    prefix.withAll(firstElse.getPrefixToPreserveState());
+    bindingsToDefer.addAll(
+      EagerReconstructionUtils.resetSpeculativeBindings(interpreter, firstElse)
+    );
+    prefix.withAllInFront(
+      EagerReconstructionUtils.deferWordsAndReconstructReferences(
+        interpreter,
+        bindingsToDefer
+      )
+    );
+
+    // Re-evaluate both alternatives after all potentially modified values are deferred.
+    // Reset each branch before evaluating the other one, just as for eager if branches.
+    EagerExecutionResult secondBody = runBranchOnce(
+      tagNode,
+      interpreter,
+      false,
+      body,
+      true
+    );
+    if (!bindingsToDefer.containsAll(secondBody.getSpeculativeBindings().keySet())) {
+      throw new DeferredValueException("Modified values in deferred for loop");
+    }
+    result.append(secondBody.asTemplateString());
+    prefix.withAllInFront(
+      EagerReconstructionUtils.resetAndDeferSpeculativeBindings(interpreter, secondBody)
+    );
+    result.append(tagNode.getChildren().get(elseIndex).getMaster().getImage());
+    EagerExecutionResult secondElse = runBranchOnce(
+      tagNode,
+      interpreter,
+      false,
+      otherwise,
+      false
+    );
+    if (!bindingsToDefer.containsAll(secondElse.getSpeculativeBindings().keySet())) {
+      throw new DeferredValueException("Modified values in deferred for else block");
+    }
+    result.append(secondElse.asTemplateString());
+    prefix.withAllInFront(
+      EagerReconstructionUtils.resetAndDeferSpeculativeBindings(interpreter, secondElse)
+    );
+    result.append(EagerReconstructionUtils.reconstructEnd(tagNode));
+    return prefix.toString() + result;
+  }
+
+  private EagerExecutionResult runBranchOnce(
+    TagNode tagNode,
+    JinjavaInterpreter interpreter,
+    boolean clearDeferredWords,
+    List<Node> children,
+    boolean loopBody
+  ) {
     return EagerContextWatcher.executeInChildContext(
       eagerInterpreter -> {
-        if (!(eagerInterpreter.getContext().get(ForTag.LOOP) instanceof DeferredValue)) {
+        if (
+          loopBody &&
+          !(eagerInterpreter.getContext().get(ForTag.LOOP) instanceof DeferredValue)
+        ) {
           eagerInterpreter.getContext().put(ForTag.LOOP, DeferredValue.instance());
         }
-        List<String> loopVars = getTag()
-          .getLoopVarsAndExpression((TagToken) tagNode.getMaster())
-          .getLeft();
+        List<String> loopVars = loopBody
+          ? getTag().getLoopVarsAndExpression((TagToken) tagNode.getMaster()).getLeft()
+          : Collections.emptyList();
         interpreter.getContext().addNonMetaContextVariables(loopVars);
         loopVars.forEach(var ->
           interpreter.getContext().put(var, DeferredValue.instance())
         );
         try {
-          return EagerExpressionResult.fromString(
-            renderChildren(tagNode, eagerInterpreter)
-          );
+          if (children == tagNode.getChildren()) {
+            return EagerExpressionResult.fromString(
+              renderChildren(tagNode, eagerInterpreter)
+            );
+          }
+          StringBuilder output = new StringBuilder();
+          for (Node child : children) {
+            output.append(child.render(eagerInterpreter).getValue());
+          }
+          return EagerExpressionResult.fromString(output.toString());
         } finally {
           interpreter.getContext().removeNonMetaContextVariables(loopVars);
           if (clearDeferredWords) {

@@ -71,6 +71,41 @@ public class ValidationModeTest {
   }
 
   @Test
+  public void itValidatesBothForElseBranchesWithoutRenderingTheInactiveBranch() {
+    for (String values : List.of("[]", "[1]")) {
+      JinjavaInterpreter validating = new Jinjava(
+        BaseJinjavaTest.newConfigBuilder().withValidationMode(true).build()
+      )
+        .newInterpreter();
+      String output = validating.render(
+        "{% for item in " +
+        values +
+        " %}BODY{{ badBody( }}{% else %}EMPTY{{ badElse( }}{% endfor %}"
+      );
+      assertThat(output).isEqualTo(values.equals("[]") ? "EMPTY" : "BODY");
+      assertThat(validating.getErrors()).hasSize(2);
+    }
+  }
+
+  @Test
+  public void itDoesNotApplyChangesFromAValidatedForElseBranch() {
+    for (String values : List.of("[]", "[1]")) {
+      JinjavaInterpreter validating = new Jinjava(
+        BaseJinjavaTest.newConfigBuilder().withValidationMode(true).build()
+      )
+        .newInterpreter();
+      String output = validating.render(
+        "{% set result = [] %}{% for item in " +
+        values +
+        " %}{% do result.append('body') %}" +
+        "{% else %}{% do result.append('else') %}{% endfor %}{{ result|join(',') }}"
+      );
+      assertThat(output).isEqualTo(values.equals("[]") ? "else" : "body");
+      assertThat(validating.getErrors()).isEmpty();
+    }
+  }
+
+  @Test
   public void itResolvesAllIfExpressionsInValidationMode() {
     validatingInterpreter.render(
       "{{ badCode( }}" + "{% if false %}" + "  {{ badCode( }}" + "{% endif %}"
