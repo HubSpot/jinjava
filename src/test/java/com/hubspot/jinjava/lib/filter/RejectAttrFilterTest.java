@@ -75,6 +75,17 @@ public class RejectAttrFilterTest extends BaseJinjavaTest {
       .isEqualTo("[1, 2]");
   }
 
+  @Test
+  public void rejectAttrWithStringMembershipExp() {
+    assertThat(
+      jinjava.render(
+        "{{ [('action', 'down_single'), ('event_type', 'down_single')] | rejectattr(0, 'in', 'name,event_type') | list }}",
+        new HashMap<String, Object>()
+      )
+    )
+      .isEqualTo("[['action', 'down_single']]");
+  }
+
   public static class User implements PyishSerializable {
 
     private int num;
