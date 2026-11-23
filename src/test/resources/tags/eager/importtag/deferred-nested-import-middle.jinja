@@ -1,0 +1,3 @@
+{% macro go() -%}
+{% import 'printer-b.jinja' as printer %}{{ printer.print() }}
+{%- endmacro %}

@@ -560,6 +560,20 @@ public class EagerImportTagTest extends ImportTagTest {
   }
 
   @Test
+  public void itImportsInsideMacroOfImportFromMacroCalledInDeferredBlock() {
+    setupResourceLocator();
+    String result = interpreter.render(
+      "{% import 'deferred-nested-import-outer.jinja' as outer %}" +
+      "{% if deferred %}{{ outer.render() }}{% endif %}"
+    );
+    assertThat(interpreter.getErrors()).isEmpty();
+    removeDeferredContextKeys();
+    context.put("deferred", true);
+    context.getDeferredTokens().clear();
+    assertThat(interpreter.render(result).trim()).isEqualTo("B_B_B");
+  }
+
+  @Test
   public void itKeepsDeferredImportAliasesInsideOwnScope() {
     setupResourceLocator();
     String result = interpreter.render(
