@@ -254,6 +254,39 @@ public class EagerForTagTest extends ForTagTest {
     assertThat(interpreter.getContext().getDeferredNodes()).isEmpty();
   }
 
+  @Test
+  public void itKeepsAssignmentsAcrossIterationsOfDeferredLoop() {
+    interpreter.getContext().registerTag(new EagerSetTag());
+    interpreter.getContext().put("flag", 0);
+    String eagerOutput = interpreter.render(
+      "{% for i in deferred %}" + "{{ flag }}|" + "{% set flag = 7 %}" + "{% endfor %}"
+    );
+    // flag is set once in front of the loop, not reset at the start of every iteration
+    assertThat(eagerOutput)
+      .isEqualTo(
+        "{% set flag = 0 %}" +
+        "{% for i in deferred %}" +
+        "{{ flag }}|" +
+        "{% set flag = 7 %}" +
+        "{% endfor %}"
+      );
+
+    interpreter.getContext().put("deferred", ImmutableList.of(1, 2));
+    assertThat(interpreter.render(eagerOutput)).isEqualTo("0|7|");
+  }
+
+  @Test
+  public void itDoesNotOverwriteLoopVariableShadowingAssignedOuterVariable() {
+    interpreter.getContext().registerTag(new EagerSetTag());
+    interpreter.getContext().put("item", 0);
+    String eagerOutput = interpreter.render(
+      "{% for item in deferred %}" + "{{ item }}|" + "{% set item = 0 %}" + "{% endfor %}"
+    );
+
+    interpreter.getContext().put("deferred", ImmutableList.of(1, 2));
+    assertThat(interpreter.render(eagerOutput)).isEqualTo("1|2|");
+  }
+
   public static boolean inForLoop() {
     JinjavaInterpreter interpreter = JinjavaInterpreter.getCurrent();
     return interpreter.getContext().isInForLoop();
