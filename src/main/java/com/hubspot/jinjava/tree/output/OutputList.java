@@ -37,7 +37,10 @@ public class OutputList {
 
       if (maxOutputSize > 0) {
         if (currentSize + blockNode.getSize() > maxOutputSize) {
-          throw new OutputTooBigException(maxOutputSize, currentSize + blockNode.getSize());
+          throw new OutputTooBigException(
+            maxOutputSize,
+            currentSize + blockNode.getSize()
+          );
         }
         currentSize += blockNode.getSize();
       }
