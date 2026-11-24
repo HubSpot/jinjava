@@ -259,12 +259,16 @@ public class EagerForTagTest extends ForTagTest {
     interpreter.getContext().registerTag(new EagerSetTag());
     interpreter.getContext().put("flag", 0);
     String eagerOutput = interpreter.render(
-      "{% for i in deferred %}{{ flag }}|{% set flag = 7 %}{% endfor %}"
+      "{% for i in deferred %}" + "{{ flag }}|" + "{% set flag = 7 %}" + "{% endfor %}"
     );
     // flag is set once in front of the loop, not reset at the start of every iteration
     assertThat(eagerOutput)
       .isEqualTo(
-        "{% set flag = 0 %}{% for i in deferred %}{{ flag }}|{% set flag = 7 %}{% endfor %}"
+        "{% set flag = 0 %}" +
+        "{% for i in deferred %}" +
+        "{{ flag }}|" +
+        "{% set flag = 7 %}" +
+        "{% endfor %}"
       );
 
     interpreter.getContext().put("deferred", ImmutableList.of(1, 2));
@@ -276,7 +280,7 @@ public class EagerForTagTest extends ForTagTest {
     interpreter.getContext().registerTag(new EagerSetTag());
     interpreter.getContext().put("item", 0);
     String eagerOutput = interpreter.render(
-      "{% for item in deferred %}{{ item }}|{% set item = 0 %}{% endfor %}"
+      "{% for item in deferred %}" + "{{ item }}|" + "{% set item = 0 %}" + "{% endfor %}"
     );
 
     interpreter.getContext().put("deferred", ImmutableList.of(1, 2));
