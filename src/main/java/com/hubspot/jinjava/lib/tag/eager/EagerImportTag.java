@@ -51,9 +51,7 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
     EagerImportingStrategy eagerImportingStrategy = EagerImportingStrategyFactory.create(
       importingData
     );
-    // Candidate names (variables, macros) the imported template may read from this one,
-    // if its import gets deferred. A rough scan of its source: only names that exist
-    // here are reconstructed in front of the deferred import.
+
     Set<String> namesReadByDeferredImport = new HashSet<>();
 
     try (
@@ -158,7 +156,9 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
         );
     } catch (DeferredValueException e) {
       String deferredImportImage = eagerImportingStrategy.handleDeferredTemplateFile(e);
-      if (namesReadByDeferredImport.isEmpty()) {
+
+      boolean hasStateToPreserve = !namesReadByDeferredImport.isEmpty();
+      if (!hasStateToPreserve) {
         return deferredImportImage;
       }
       // The import tag will be re-run on a later pass, so preserve the state of this
