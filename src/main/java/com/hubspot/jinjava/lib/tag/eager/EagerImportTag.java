@@ -161,8 +161,7 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
       if (!hasStateToPreserve) {
         return deferredImportImage;
       }
-      // The import tag will be re-run on a later pass, so preserve the state of this
-      // template which the imported template reads, such as variables and macros.
+
       PrefixToPreserveState prefixToPreserveState =
         EagerReconstructionUtils.hydrateReconstructionFromContextBeforeDeferring(
           new PrefixToPreserveState(),
