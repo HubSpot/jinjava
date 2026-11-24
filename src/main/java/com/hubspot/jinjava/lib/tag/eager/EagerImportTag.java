@@ -8,12 +8,15 @@ import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
 import com.hubspot.jinjava.interpret.TagCycleException;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
+import com.hubspot.jinjava.lib.fn.MacroFunction;
+import com.hubspot.jinjava.lib.fn.eager.EagerMacroFunction;
 import com.hubspot.jinjava.lib.tag.DoTag;
 import com.hubspot.jinjava.lib.tag.ImportTag;
 import com.hubspot.jinjava.lib.tag.eager.importing.EagerImportingStrategy;
@@ -21,9 +24,16 @@ import com.hubspot.jinjava.lib.tag.eager.importing.EagerImportingStrategyFactory
 import com.hubspot.jinjava.lib.tag.eager.importing.ImportingData;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.parse.TagToken;
+import com.hubspot.jinjava.util.DeferredValueUtils;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
+import com.hubspot.jinjava.util.PrefixToPreserveState;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
 @Beta
@@ -46,6 +56,8 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
     EagerImportingStrategy eagerImportingStrategy = EagerImportingStrategyFactory.create(
       importingData
     );
+
+    Set<String> namesReadByDeferredImport = new HashSet<>();
 
     try (
       AutoCloseableImpl<Result<String, TagCycleException>> templateFileResult = ImportTag
@@ -98,6 +110,18 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
                 (interpreter.getContext().isDeferredExecutionMode() &&
                   !child.getContext().getGlobalMacros().isEmpty())
               ) {
+                namesReadByDeferredImport.addAll(
+                  DeferredValueUtils.getPropertiesUsedInDeferredNodes(
+                    interpreter.getContext(),
+                    node
+                      .value()
+                      .getChildren()
+                      .stream()
+                      .map(Node::reconstructImage)
+                      .collect(Collectors.joining()),
+                    false
+                  )
+                );
                 ImportTag.handleDeferredNodesDuringImport(
                   node.value(),
                   ImportTag.getContextVar(importingData.getHelpers()),
@@ -136,7 +160,46 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
           }
         );
     } catch (DeferredValueException e) {
-      return eagerImportingStrategy.handleDeferredTemplateFile(e);
+      String deferredImportImage = eagerImportingStrategy.handleDeferredTemplateFile(e);
+
+      boolean hasStateToPreserve = !namesReadByDeferredImport.isEmpty();
+      if (!hasStateToPreserve) {
+        return deferredImportImage;
+      }
+
+      PrefixToPreserveState prefixToPreserveState;
+      try (InterpreterScopeClosable c = interpreter.enterNonStackingScope()) {
+        // A parent macro the imported template calls with {% call %} may use caller().
+        // Like EagerCallTag, make caller() exist and be deferred while reconstructing,
+        // so it stays in the reconstructed macro instead of failing to resolve.
+        MacroFunction caller = new EagerMacroFunction(
+          Collections.emptyList(),
+          "caller",
+          new LinkedHashMap<>(),
+          true,
+          interpreter.getContext(),
+          interpreter.getLineNumber(),
+          interpreter.getPosition()
+        );
+        caller.setDeferred(true);
+        interpreter.getContext().addGlobalMacro(caller);
+        prefixToPreserveState =
+          EagerReconstructionUtils.hydrateReconstructionFromContextBeforeDeferring(
+            new PrefixToPreserveState(),
+            namesReadByDeferredImport,
+            interpreter
+          );
+      }
+      prefixToPreserveState.withAllInFront(
+        EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
+          interpreter,
+          DeferredToken
+            .builderFromToken(tagToken)
+            .addUsedDeferredWords(namesReadByDeferredImport)
+            .build()
+        )
+      );
+      return prefixToPreserveState + deferredImportImage;
     }
   }
 }
