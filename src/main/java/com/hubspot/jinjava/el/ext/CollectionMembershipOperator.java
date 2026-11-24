@@ -9,10 +9,9 @@ import de.odysseus.el.tree.impl.ast.AstBinary;
 import de.odysseus.el.tree.impl.ast.AstBinary.SimpleOperator;
 import de.odysseus.el.tree.impl.ast.AstNode;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.function.Predicate;
 import javax.el.ELException;
 import org.apache.commons.lang3.StringUtils;
 
@@ -30,50 +29,65 @@ public class CollectionMembershipOperator extends SimpleOperator {
 
     if (Collection.class.isAssignableFrom(o2.getClass())) {
       Collection<?> collection = (Collection<?>) o2;
-
-      for (Object value : collection) {
-        if (value == null) {
-          if (o1 == null) {
-            return Boolean.TRUE;
-          }
-        } else {
-          try {
-            return collection.contains(converter.convert(o1, value.getClass()));
-          } catch (ELException e) {
-            return Boolean.FALSE;
-          }
-        }
-      }
+      return containsConverted(converter, o1, collection, collection::contains);
     }
 
     if (Map.class.isAssignableFrom(o2.getClass())) {
-      Map map = (Map) o2;
-      // An implementation of Map can override isEmpty() to false, but return empty keySet.
-      if (map.isEmpty() || map.keySet().isEmpty()) {
+      Map<?, ?> map = (Map<?, ?>) o2;
+      if (map.isEmpty()) {
         return Boolean.FALSE;
       }
-      Iterator iterator = map.keySet().iterator();
-      Object key = iterator.next();
-      if (key == null) {
-        if (o1 == null) {
-          return Boolean.TRUE;
-        } else {
-          if (iterator.hasNext()) {
-            // Must be non-null this time.
-            key = iterator.next();
-          } else {
-            return Boolean.FALSE;
-          }
-        }
+
+      return containsConverted(converter, o1, map.keySet(), map::containsKey);
+    }
+
+    return Boolean.FALSE;
+  }
+
+  private static Boolean containsConverted(
+    TypeConverter converter,
+    Object needle,
+    Iterable<?> values,
+    Predicate<Object> contains
+  ) {
+    if (needle == null) {
+      return containsNull(converter, values, contains);
+    }
+
+    for (Object value : values) {
+      if (value == null) {
+        continue;
+      }
+
+      Object converted;
+      try {
+        converted = converter.convert(needle, value.getClass());
+      } catch (ELException e) {
+        continue;
+      }
+
+      if (contains.test(converted)) {
+        return Boolean.TRUE;
+      }
+    }
+    return Boolean.FALSE;
+  }
+
+  private static Boolean containsNull(
+    TypeConverter converter,
+    Iterable<?> values,
+    Predicate<Object> contains
+  ) {
+    for (Object value : values) {
+      if (value == null) {
+        return Boolean.TRUE;
       }
       try {
-        Class<?> keyClass = key.getClass();
-        return map.containsKey(converter.convert(o1, keyClass));
-      } catch (ELException | NoSuchElementException e) {
+        return contains.test(converter.convert(null, value.getClass()));
+      } catch (ELException e) {
         return Boolean.FALSE;
       }
     }
-
     return Boolean.FALSE;
   }
 
