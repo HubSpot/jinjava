@@ -8,12 +8,15 @@ import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValueException;
 import com.hubspot.jinjava.interpret.InterpretException;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
+import com.hubspot.jinjava.interpret.JinjavaInterpreter.InterpreterScopeClosable;
 import com.hubspot.jinjava.interpret.TagCycleException;
 import com.hubspot.jinjava.interpret.TemplateError;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorItem;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorReason;
 import com.hubspot.jinjava.interpret.TemplateError.ErrorType;
 import com.hubspot.jinjava.interpret.errorcategory.BasicTemplateErrorCategory;
+import com.hubspot.jinjava.lib.fn.MacroFunction;
+import com.hubspot.jinjava.lib.fn.eager.EagerMacroFunction;
 import com.hubspot.jinjava.lib.tag.DoTag;
 import com.hubspot.jinjava.lib.tag.ImportTag;
 import com.hubspot.jinjava.lib.tag.eager.importing.EagerImportingStrategy;
@@ -25,7 +28,9 @@ import com.hubspot.jinjava.util.DeferredValueUtils;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
 import com.hubspot.jinjava.util.PrefixToPreserveState;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -162,12 +167,29 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
         return deferredImportImage;
       }
 
-      PrefixToPreserveState prefixToPreserveState =
-        EagerReconstructionUtils.hydrateReconstructionFromContextBeforeDeferring(
-          new PrefixToPreserveState(),
-          namesReadByDeferredImport,
-          interpreter
+      PrefixToPreserveState prefixToPreserveState;
+      try (InterpreterScopeClosable c = interpreter.enterNonStackingScope()) {
+        // A parent macro the imported template calls with {% call %} may use caller().
+        // Like EagerCallTag, make caller() exist and be deferred while reconstructing,
+        // so it stays in the reconstructed macro instead of failing to resolve.
+        MacroFunction caller = new EagerMacroFunction(
+          Collections.emptyList(),
+          "caller",
+          new LinkedHashMap<>(),
+          true,
+          interpreter.getContext(),
+          interpreter.getLineNumber(),
+          interpreter.getPosition()
         );
+        caller.setDeferred(true);
+        interpreter.getContext().addGlobalMacro(caller);
+        prefixToPreserveState =
+          EagerReconstructionUtils.hydrateReconstructionFromContextBeforeDeferring(
+            new PrefixToPreserveState(),
+            namesReadByDeferredImport,
+            interpreter
+          );
+      }
       prefixToPreserveState.withAllInFront(
         EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
           interpreter,

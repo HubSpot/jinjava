@@ -779,6 +779,20 @@ public class EagerImportTagTest extends ImportTagTest {
     assertThat(secondPass.getOutput()).isEqualTo("[0]");
   }
 
+  @Test
+  public void itPreservesParentCallerMacroCalledByDeferredImportWithMacro() {
+    setupResourceLocator();
+    String firstPassResult = interpreter.render(
+      "{% macro k(p) %}<{{ p }}:{{ caller() }}>{% endmacro %}{% if deferred %}" +
+      "{% import 'macro-and-set-calling-parent-caller-macro.jinja' as lib %}{{ lib.v }}" +
+      "{% endif %}"
+    );
+    assertThat(interpreter.getErrors()).isEmpty();
+    RenderResult secondPass = renderSecondPassInDefaultMode(firstPassResult);
+    assertThat(secondPass.getErrors()).isEmpty();
+    assertThat(secondPass.getOutput()).isEqualTo("<0:x>");
+  }
+
   private static JinjavaConfig newConfig(ExecutionMode executionMode) {
     return BaseJinjavaTest
       .newConfigBuilder()
