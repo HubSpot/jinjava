@@ -21,9 +21,14 @@ import com.hubspot.jinjava.lib.tag.eager.importing.EagerImportingStrategyFactory
 import com.hubspot.jinjava.lib.tag.eager.importing.ImportingData;
 import com.hubspot.jinjava.tree.Node;
 import com.hubspot.jinjava.tree.parse.TagToken;
+import com.hubspot.jinjava.util.DeferredValueUtils;
 import com.hubspot.jinjava.util.EagerReconstructionUtils;
+import com.hubspot.jinjava.util.PrefixToPreserveState;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
 @Beta
@@ -46,6 +51,8 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
     EagerImportingStrategy eagerImportingStrategy = EagerImportingStrategyFactory.create(
       importingData
     );
+    // Words the imported template may read from this one, if its import gets deferred
+    Set<String> wordsUsedByDeferredChild = new HashSet<>();
 
     try (
       AutoCloseableImpl<Result<String, TagCycleException>> templateFileResult = ImportTag
@@ -98,6 +105,18 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
                 (interpreter.getContext().isDeferredExecutionMode() &&
                   !child.getContext().getGlobalMacros().isEmpty())
               ) {
+                wordsUsedByDeferredChild.addAll(
+                  DeferredValueUtils.getPropertiesUsedInDeferredNodes(
+                    interpreter.getContext(),
+                    node
+                      .value()
+                      .getChildren()
+                      .stream()
+                      .map(Node::reconstructImage)
+                      .collect(Collectors.joining()),
+                    false
+                  )
+                );
                 ImportTag.handleDeferredNodesDuringImport(
                   node.value(),
                   ImportTag.getContextVar(importingData.getHelpers()),
@@ -136,7 +155,28 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
           }
         );
     } catch (DeferredValueException e) {
-      return eagerImportingStrategy.handleDeferredTemplateFile(e);
+      String deferredImportImage = eagerImportingStrategy.handleDeferredTemplateFile(e);
+      if (wordsUsedByDeferredChild.isEmpty()) {
+        return deferredImportImage;
+      }
+      // The import tag will be re-run on a later pass, so preserve the state of this
+      // template which the imported template reads, such as variables and macros.
+      PrefixToPreserveState prefixToPreserveState =
+        EagerReconstructionUtils.hydrateReconstructionFromContextBeforeDeferring(
+          new PrefixToPreserveState(),
+          wordsUsedByDeferredChild,
+          interpreter
+        );
+      prefixToPreserveState.withAllInFront(
+        EagerReconstructionUtils.handleDeferredTokenAndReconstructReferences(
+          interpreter,
+          DeferredToken
+            .builderFromToken(tagToken)
+            .addUsedDeferredWords(wordsUsedByDeferredChild)
+            .build()
+        )
+      );
+      return prefixToPreserveState + deferredImportImage;
     }
   }
 }

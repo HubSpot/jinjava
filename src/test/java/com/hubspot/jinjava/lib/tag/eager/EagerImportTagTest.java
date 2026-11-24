@@ -6,6 +6,7 @@ import com.google.common.base.Strings;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.BaseJinjavaTest;
 import com.hubspot.jinjava.LegacyOverrides;
+import com.hubspot.jinjava.interpret.AutoCloseableSupplier.AutoCloseableImpl;
 import com.hubspot.jinjava.interpret.Context;
 import com.hubspot.jinjava.interpret.DeferredValue;
 import com.hubspot.jinjava.interpret.JinjavaInterpreter;
@@ -759,6 +760,50 @@ public class EagerImportTagTest extends ImportTagTest {
         "{% enddo %}" +
         "{{ foo }} bar"
       );
+  }
+
+  @Test
+  public void itPreservesParentVariableReadByDeferredImportWithMacro() {
+    setupResourceLocator();
+    String firstPassResult = interpreter.render(
+      "{% set x = 5 %}{% if deferred %}" +
+      "{% import 'macro-and-set-reading-parent-var.jinja' as lib %}{{ lib.v }}" +
+      "{% endif %}"
+    );
+    RenderResult secondPass = renderSecondPassInDefaultMode(firstPassResult);
+    assertThat(secondPass.getErrors()).isEmpty();
+    assertThat(secondPass.getOutput()).isEqualTo("6");
+  }
+
+  @Test
+  public void itPreservesParentMacroCalledByDeferredImportWithMacro() {
+    setupResourceLocator();
+    String firstPassResult = interpreter.render(
+      "{% macro m(p) %}[{{ p }}]{% endmacro %}{% if deferred %}" +
+      "{% import 'macro-and-set-calling-parent-macro.jinja' as lib %}{{ lib.v }}" +
+      "{% endif %}"
+    );
+    RenderResult secondPass = renderSecondPassInDefaultMode(firstPassResult);
+    assertThat(secondPass.getErrors()).isEmpty();
+    assertThat(secondPass.getOutput()).isEqualTo("[0]");
+  }
+
+  private RenderResult renderSecondPassInDefaultMode(String firstPassResult) {
+    // A fresh default-mode interpreter, so nothing from the eager pass's context leaks in
+    JinjavaInterpreter secondPassInterpreter = jinjava.newInterpreter();
+    secondPassInterpreter.getContext().put("deferred", true);
+    try (
+      AutoCloseableImpl<JinjavaInterpreter> ignored = JinjavaInterpreter
+        .closeablePushCurrent(secondPassInterpreter)
+        .get()
+    ) {
+      String output = secondPassInterpreter.render(firstPassResult);
+      return new RenderResult(
+        output,
+        secondPassInterpreter.getContext(),
+        secondPassInterpreter.getErrorsCopy()
+      );
+    }
   }
 
   private JinjavaInterpreter getChildInterpreter(
