@@ -177,7 +177,19 @@ public class EagerForTag extends EagerTagDecorator<ForTag> {
       );
     }
 
-    result.append(secondRunResult.asTemplateString());
+    // Values the loop body modifies are already preserved in front of the loop.
+    // Re-emitting them inside the body would reset them at the start of every
+    // iteration (and overwrite a loop variable of the same name).
+    PrefixToPreserveState loopBodyPrefix = new PrefixToPreserveState();
+    secondRunResult
+      .getPrefixToPreserveState()
+      .forEach((name, setTag) -> {
+        if (!prefixToPreserveState.containsKey(name)) {
+          loopBodyPrefix.put(name, setTag);
+        }
+      });
+    result.append(loopBodyPrefix.toString());
+    result.append(secondRunResult.getResult().toString(true));
     result.append(EagerReconstructionUtils.reconstructEnd(tagNode));
     return prefixToPreserveState.toString() + result;
   }
