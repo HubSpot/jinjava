@@ -7,6 +7,7 @@ import com.hubspot.jinjava.interpret.JinjavaInterpreter;
 import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import org.junit.Before;
@@ -50,6 +51,28 @@ public class CollectionMembershipOperatorTest {
     assertThat(interpreter.resolveELExpression("11 in [11, 12, 13]", -1)).isEqualTo(true);
     assertThat(interpreter.resolveELExpression("14 in [11, 12, 13]", -1))
       .isEqualTo(false);
+  }
+
+  @Test
+  public void itChecksIfMixedTypeArrayContainsValue() {
+    // Context values from Java are often Integers, while integer literals are Longs
+    interpreter.getContext().put("zero", 0);
+    assertThat(interpreter.resolveELExpression("1 in [zero, 1]", -1)).isEqualTo(true);
+    assertThat(interpreter.resolveELExpression("zero in [1, zero]", -1)).isEqualTo(true);
+    assertThat(interpreter.resolveELExpression("'x' in [1, 'x']", -1)).isEqualTo(true);
+    assertThat(interpreter.resolveELExpression("2 in [zero, 1]", -1)).isEqualTo(false);
+    assertThat(interpreter.resolveELExpression("'y' in [1, 'x']", -1)).isEqualTo(false);
+  }
+
+  @Test
+  public void itChecksIfMixedTypeDictionaryContainsKey() {
+    Map<Object, Object> map = new LinkedHashMap<>();
+    map.put(1L, "one");
+    map.put("x", "ex");
+    interpreter.getContext().put("map", map);
+    assertThat(interpreter.resolveELExpression("'x' in map", -1)).isEqualTo(true);
+    assertThat(interpreter.resolveELExpression("1 in map", -1)).isEqualTo(true);
+    assertThat(interpreter.resolveELExpression("'y' in map", -1)).isEqualTo(false);
   }
 
   @Test
