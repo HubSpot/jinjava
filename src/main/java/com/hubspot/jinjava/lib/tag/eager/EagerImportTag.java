@@ -51,8 +51,10 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
     EagerImportingStrategy eagerImportingStrategy = EagerImportingStrategyFactory.create(
       importingData
     );
-    // Words the imported template may read from this one, if its import gets deferred
-    Set<String> wordsUsedByDeferredChild = new HashSet<>();
+    // Candidate names (variables, macros) the imported template may read from this one,
+    // if its import gets deferred. A rough scan of its source: only names that exist
+    // here are reconstructed in front of the deferred import.
+    Set<String> namesReadByDeferredImport = new HashSet<>();
 
     try (
       AutoCloseableImpl<Result<String, TagCycleException>> templateFileResult = ImportTag
@@ -105,7 +107,7 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
                 (interpreter.getContext().isDeferredExecutionMode() &&
                   !child.getContext().getGlobalMacros().isEmpty())
               ) {
-                wordsUsedByDeferredChild.addAll(
+                namesReadByDeferredImport.addAll(
                   DeferredValueUtils.getPropertiesUsedInDeferredNodes(
                     interpreter.getContext(),
                     node
@@ -156,7 +158,7 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
         );
     } catch (DeferredValueException e) {
       String deferredImportImage = eagerImportingStrategy.handleDeferredTemplateFile(e);
-      if (wordsUsedByDeferredChild.isEmpty()) {
+      if (namesReadByDeferredImport.isEmpty()) {
         return deferredImportImage;
       }
       // The import tag will be re-run on a later pass, so preserve the state of this
@@ -164,7 +166,7 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
       PrefixToPreserveState prefixToPreserveState =
         EagerReconstructionUtils.hydrateReconstructionFromContextBeforeDeferring(
           new PrefixToPreserveState(),
-          wordsUsedByDeferredChild,
+          namesReadByDeferredImport,
           interpreter
         );
       prefixToPreserveState.withAllInFront(
@@ -172,7 +174,7 @@ public class EagerImportTag extends EagerStateChangingTag<ImportTag> {
           interpreter,
           DeferredToken
             .builderFromToken(tagToken)
-            .addUsedDeferredWords(wordsUsedByDeferredChild)
+            .addUsedDeferredWords(namesReadByDeferredImport)
             .build()
         )
       );
