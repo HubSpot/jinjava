@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.base.Strings;
 import com.google.common.io.Resources;
 import com.hubspot.jinjava.BaseJinjavaTest;
+import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.LegacyOverrides;
 import com.hubspot.jinjava.interpret.AutoCloseableSupplier.AutoCloseableImpl;
 import com.hubspot.jinjava.interpret.Context;
@@ -22,7 +23,9 @@ import com.hubspot.jinjava.lib.tag.eager.importing.ImportingData;
 import com.hubspot.jinjava.loader.LocationResolver;
 import com.hubspot.jinjava.loader.RelativePathResolver;
 import com.hubspot.jinjava.loader.ResourceLocator;
+import com.hubspot.jinjava.mode.DefaultExecutionMode;
 import com.hubspot.jinjava.mode.EagerExecutionMode;
+import com.hubspot.jinjava.mode.ExecutionMode;
 import com.hubspot.jinjava.testobjects.EagerImportTagTestObjects;
 import com.hubspot.jinjava.tree.parse.DefaultTokenScannerSymbols;
 import com.hubspot.jinjava.tree.parse.TagToken;
@@ -51,19 +54,7 @@ public class EagerImportTagTest extends ImportTagTest {
     context.put("padding", 42);
     context.registerFilter(new EagerImportTagTestObjects.PrintPathFilter());
     interpreter =
-      new JinjavaInterpreter(
-        jinjava,
-        context,
-        BaseJinjavaTest
-          .newConfigBuilder()
-          .withExecutionMode(EagerExecutionMode.instance())
-          .withLegacyOverrides(
-            LegacyOverrides.newBuilder().withUsePyishObjectMapper(true).build()
-          )
-          .withEnableRecursiveMacroCalls(true)
-          .withMaxMacroRecursionDepth(10)
-          .build()
-      );
+      new JinjavaInterpreter(jinjava, context, newConfig(EagerExecutionMode.instance()));
     Tag tag = EagerTagFactory
       .getEagerTagDecorator(new ImportTag())
       .orElseThrow(RuntimeException::new);
@@ -788,9 +779,26 @@ public class EagerImportTagTest extends ImportTagTest {
     assertThat(secondPass.getOutput()).isEqualTo("[0]");
   }
 
+  private static JinjavaConfig newConfig(ExecutionMode executionMode) {
+    return BaseJinjavaTest
+      .newConfigBuilder()
+      .withExecutionMode(executionMode)
+      .withLegacyOverrides(
+        LegacyOverrides.newBuilder().withUsePyishObjectMapper(true).build()
+      )
+      .withEnableRecursiveMacroCalls(true)
+      .withMaxMacroRecursionDepth(10)
+      .build();
+  }
+
   private RenderResult renderSecondPassInDefaultMode(String firstPassResult) {
-    // A fresh default-mode interpreter, so nothing from the eager pass's context leaks in
-    JinjavaInterpreter secondPassInterpreter = jinjava.newInterpreter();
+    // A fresh default-mode interpreter, so nothing from the eager pass's context leaks in.
+    // It uses the eager pass's config apart from the execution mode.
+    JinjavaInterpreter secondPassInterpreter = new JinjavaInterpreter(
+      jinjava,
+      jinjava.getGlobalContextCopy(),
+      newConfig(DefaultExecutionMode.instance())
+    );
     secondPassInterpreter.getContext().put("deferred", true);
     try (
       AutoCloseableImpl<JinjavaInterpreter> ignored = JinjavaInterpreter
