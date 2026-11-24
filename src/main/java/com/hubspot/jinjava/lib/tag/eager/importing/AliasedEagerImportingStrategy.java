@@ -37,7 +37,7 @@ public class AliasedEagerImportingStrategy implements EagerImportingStrategy {
     this.currentImportAlias = currentImportAlias;
     maybeParentImportAlias =
       importingData.getOriginalInterpreter().getContext().getImportResourceAlias();
-    if (maybeParentImportAlias.isPresent()) {
+    if (isParentImportInProgress(importingData.getOriginalInterpreter())) {
       fullImportAlias =
         String.format("%s.%s", maybeParentImportAlias.get(), currentImportAlias);
     } else {
@@ -138,9 +138,7 @@ public class AliasedEagerImportingStrategy implements EagerImportingStrategy {
 
   @SuppressWarnings("unchecked")
   private void constructFullAliasPathMap(JinjavaInterpreter child) {
-    String[] allAliases = isParentImportInProgress(child)
-      ? fullImportAlias.split("\\.")
-      : new String[] { currentImportAlias };
+    String[] allAliases = fullImportAlias.split("\\.");
     Map<String, Object> currentMap = child.getContext().getParent();
     for (int i = 0; i < allAliases.length - 1; i++) {
       Object maybeNextMap = currentMap.get(allAliases[i]);
@@ -164,10 +162,10 @@ public class AliasedEagerImportingStrategy implements EagerImportingStrategy {
     );
   }
 
-  private boolean isParentImportInProgress(JinjavaInterpreter child) {
+  private boolean isParentImportInProgress(JinjavaInterpreter interpreter) {
     return maybeParentImportAlias
       .map(MetaContextVariables::getTemporaryImportAlias)
-      .map(child.getContext()::containsKey)
+      .map(interpreter.getContext()::containsKey)
       .orElse(false);
   }
 
