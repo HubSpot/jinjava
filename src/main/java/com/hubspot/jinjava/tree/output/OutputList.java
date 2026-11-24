@@ -23,21 +23,25 @@ public class OutputList {
   }
 
   public void addNode(OutputNode node) {
-    if (maxOutputSize > 0 && currentSize + node.getSize() > maxOutputSize) {
-      throw new OutputTooBigException(maxOutputSize, currentSize + node.getSize());
+    if (maxOutputSize > 0) {
+      if (currentSize + node.getSize() > maxOutputSize) {
+        throw new OutputTooBigException(maxOutputSize, currentSize + node.getSize());
+      }
+      currentSize += node.getSize();
     }
 
-    currentSize += node.getSize();
     nodes.add(node);
 
     if (node instanceof BlockPlaceholderOutputNode) {
       BlockPlaceholderOutputNode blockNode = (BlockPlaceholderOutputNode) node;
 
-      if (maxOutputSize > 0 && currentSize + blockNode.getSize() > maxOutputSize) {
-        throw new OutputTooBigException(maxOutputSize, currentSize + blockNode.getSize());
+      if (maxOutputSize > 0) {
+        if (currentSize + blockNode.getSize() > maxOutputSize) {
+          throw new OutputTooBigException(maxOutputSize, currentSize + blockNode.getSize());
+        }
+        currentSize += blockNode.getSize();
       }
 
-      currentSize += blockNode.getSize();
       blocks.add(blockNode);
     }
   }
